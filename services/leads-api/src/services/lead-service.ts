@@ -5,6 +5,8 @@ import type { Lead, LeadChannel, RateLimiter } from '../domain/lead';
 export interface LeadServiceOptions {
   channels: LeadChannel[];
   rateLimiter: RateLimiter;
+  /** Cap per site, so a botnet can't flood the manager's Telegram. */
+  siteRateLimiter?: RateLimiter;
   minFillMs: number;
   now?: () => Date;
   newId?: () => string;
@@ -45,7 +47,9 @@ export class LeadService {
     }
 
     // Counted after validation so a person fixing a typo doesn't burn the limit.
-    const retryAfterSec = this.options.rateLimiter.hit(meta.clientKey, now.getTime());
+    const retryAfterSec =
+      this.options.rateLimiter.hit(meta.clientKey, now.getTime()) ||
+      (this.options.siteRateLimiter?.hit(parsed.data.site, now.getTime()) ?? 0);
     if (retryAfterSec > 0) {
       return { status: 429, body: { ok: false, error: 'rate_limited', retryAfterSec } };
     }
@@ -54,7 +58,8 @@ export class LeadService {
     const lead: Lead = { ...data, id: this.newId(), receivedAt: now };
 
     // Bots get the same success answer, so they have nothing to tune against.
-    if (trap !== '' || (elapsedMs !== undefined && elapsedMs < this.options.minFillMs)) {
+    // Our form always reports elapsedMs; a request without it was not sent by the page.
+    if (trap !== '' || elapsedMs === undefined || elapsedMs < this.options.minFillMs) {
       this.log('lead dropped as spam', { site: lead.site, trap: trap !== '', elapsedMs });
       return { status: 200, body: { ok: true, id: lead.id } };
     }

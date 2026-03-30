@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadConfig } from '../src/config';
-import { clientKey, createApp } from '../src/http/app';
+import { clientKey, createApp, normalizeAddress } from '../src/http/app';
 import { MemoryRateLimiter } from '../src/infrastructure/rate-limiter';
 import { LeadService } from '../src/services/lead-service';
 import { RecordingChannel } from './helpers';
@@ -22,7 +22,13 @@ function post(body: string, ip = '203.0.113.7') {
   });
 }
 
-const lead = JSON.stringify({ site: 'tutor', name: 'Ольга', phone: '+79001234567', consent: true });
+const lead = JSON.stringify({
+  site: 'tutor',
+  name: 'Ольга',
+  phone: '+79001234567',
+  consent: true,
+  elapsedMs: 12_000,
+});
 
 describe('HTTP app', () => {
   it('answers health checks', async () => {
@@ -53,6 +59,12 @@ describe('HTTP app', () => {
 describe('clientKey', () => {
   it('takes the address the proxy appended', () => {
     expect(clientKey('6.6.6.6, 203.0.113.7', '10.0.0.1', true)).toBe('203.0.113.7');
+  });
+
+  it('groups IPv6 clients by /64', () => {
+    expect(clientKey('2001:db8:1:2:aaaa::1', undefined, true)).toBe('2001:db8:1:2::/64');
+    expect(normalizeAddress('2001:db8::1')).toBe('2001:db8:0:0::/64');
+    expect(normalizeAddress('::ffff:203.0.113.7')).toBe('203.0.113.7');
   });
 
   it('ignores the header when not behind a proxy', () => {

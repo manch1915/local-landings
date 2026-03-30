@@ -39,6 +39,7 @@ export function buildContainer(config: Config, log: Logger = jsonLogger) {
   const leadService = new LeadService({
     channels,
     rateLimiter: new MemoryRateLimiter(config.RATE_LIMIT_PER_10_MIN, 10 * 60 * 1000),
+    siteRateLimiter: new MemoryRateLimiter(config.SITE_LIMIT_PER_10_MIN, 10 * 60 * 1000),
     minFillMs: config.MIN_FILL_MS,
     log,
   });

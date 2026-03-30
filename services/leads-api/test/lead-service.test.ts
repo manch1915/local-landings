@@ -55,6 +55,29 @@ describe('LeadService', () => {
     expect(channels[1]?.delivered).toHaveLength(0);
   });
 
+  it('treats a request without the fill timer as a bot', async () => {
+    const { service, channels } = setup();
+    const { elapsedMs: _skip, ...withoutTimer } = valid;
+    const result = await service.submit(withoutTimer, { clientKey: 'x' });
+    expect(result.status).toBe(200);
+    expect(channels[0]?.delivered).toHaveLength(0);
+  });
+
+  it('caps leads per site across all clients', async () => {
+    const channel = new RecordingChannel('crm');
+    const service = new LeadService({
+      channels: [channel],
+      rateLimiter: new MemoryRateLimiter(10, 60_000),
+      siteRateLimiter: new MemoryRateLimiter(2, 60_000),
+      minFillMs: 0,
+    });
+    await service.submit(valid, { clientKey: 'a' });
+    await service.submit(valid, { clientKey: 'b' });
+    const third = await service.submit(valid, { clientKey: 'c' });
+    expect(third.status).toBe(429);
+    expect(channel.delivered).toHaveLength(2);
+  });
+
   it('returns field codes for invalid input without touching the limit', async () => {
     const { service } = setup();
     for (let i = 0; i < 3; i++) {
@@ -106,5 +129,15 @@ describe('MemoryRateLimiter', () => {
     expect(limiter.hit('k', 0)).toBe(0);
     expect(limiter.hit('k', 1_000)).toBe(9);
     expect(limiter.hit('k', 10_001)).toBe(0);
+  });
+
+  it('evicts the least recently seen keys past the cap', () => {
+    const limiter = new MemoryRateLimiter(1, 60_000, 2);
+    limiter.hit('a', 0);
+    limiter.hit('b', 1);
+    limiter.hit('c', 2);
+    // "a" was evicted, so it gets a fresh slot.
+    expect(limiter.hit('a', 3)).toBe(0);
+    expect(limiter.hit('c', 4)).toBeGreaterThan(0);
   });
 });

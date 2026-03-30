@@ -2,6 +2,16 @@ import type { Lead, LeadChannel } from '../domain/lead';
 import { formatCrmNote, leadTitle } from '../services/format';
 import { ChannelError, postJson, type FetchLike } from './http-json';
 
+/** Bitrix24 renders COMMENTS as HTML with BB codes, so user text must not carry markup. */
+export function bitrixSafe(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\[/g, '(')
+    .replace(/\]/g, ')');
+}
+
 interface BitrixResponse {
   result?: number;
   error?: string;
@@ -26,8 +36,8 @@ export class Bitrix24Channel implements LeadChannel {
   async deliver(lead: Lead): Promise<void> {
     const result = await postJson<BitrixResponse>(this.fetchFn, this.name, this.endpoint, {
       fields: {
-        TITLE: leadTitle(lead),
-        NAME: lead.name,
+        TITLE: bitrixSafe(leadTitle(lead)),
+        NAME: bitrixSafe(lead.name),
         PHONE: [{ VALUE: lead.phone, VALUE_TYPE: 'MOBILE' }],
         COMMENTS: formatCrmNote(lead),
         SOURCE_ID: 'WEB',

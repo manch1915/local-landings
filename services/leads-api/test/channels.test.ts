@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AmoCrmChannel } from '../src/infrastructure/amocrm';
-import { Bitrix24Channel } from '../src/infrastructure/bitrix24';
+import { Bitrix24Channel, bitrixSafe } from '../src/infrastructure/bitrix24';
 import { MockCrmChannel } from '../src/infrastructure/mock-crm';
 import { TelegramChannel } from '../src/infrastructure/telegram';
 import { formatTelegramMessage } from '../src/services/format';
@@ -66,8 +66,12 @@ describe('Bitrix24Channel', () => {
 
     expect(calls[0]?.url).toBe('https://b24.example/rest/1/key/crm.lead.add.json');
     expect(calls[0]?.body).toMatchObject({
-      fields: { NAME: 'Ирина <Ким>', SOURCE_ID: 'WEB', PHONE: [{ VALUE: '+79123456789' }] },
+      fields: { NAME: 'Ирина &lt;Ким&gt;', SOURCE_ID: 'WEB', PHONE: [{ VALUE: '+79123456789' }] },
     });
+  });
+
+  it('strips HTML and BB codes from user text', () => {
+    expect(bitrixSafe('[url=http://x]tap[/url] <b>')).toBe('(url=http://x)tap(/url) &lt;b&gt;');
   });
 
   it('surfaces the Bitrix24 error description', async () => {

@@ -10,6 +10,23 @@ export interface AppDeps {
   remoteAddress: (c: Context) => string | undefined;
 }
 
+/** IPv6 clients usually own a whole /64, so limit by that prefix. */
+export function normalizeAddress(address: string): string {
+  const ip = address.replace(/^::ffff:/i, '');
+  if (!ip.includes(':')) return ip;
+
+  const [head = '', tail = ''] = ip.split('::');
+  const left = head ? head.split(':') : [];
+  const right = tail ? tail.split(':') : [];
+  const groups = ip.includes('::')
+    ? [...left, ...Array<string>(8 - left.length - right.length).fill('0'), ...right]
+    : left;
+  return `${groups
+    .slice(0, 4)
+    .map((group) => group.toLowerCase() || '0')
+    .join(':')}::/64`;
+}
+
 export function clientKey(
   forwardedFor: string | undefined,
   remote: string | undefined,
@@ -22,9 +39,9 @@ export function clientKey(
       .map((part) => part.trim())
       .filter(Boolean);
     const last = parts.at(-1);
-    if (last) return last;
+    if (last) return normalizeAddress(last);
   }
-  return remote ?? 'unknown';
+  return remote ? normalizeAddress(remote) : 'unknown';
 }
 
 export function createApp(deps: AppDeps): Hono {

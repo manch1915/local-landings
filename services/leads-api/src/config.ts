@@ -18,6 +18,7 @@ const configSchema = z
     AMOCRM_PIPELINE_ID: z.coerce.number().int().positive().optional().catch(undefined),
     BITRIX24_WEBHOOK_URL: optionalString.pipe(z.url().optional()),
     RATE_LIMIT_PER_10_MIN: z.coerce.number().int().positive().default(5),
+    SITE_LIMIT_PER_10_MIN: z.coerce.number().int().positive().default(60),
     MIN_FILL_MS: z.coerce.number().int().nonnegative().default(2500),
   })
   .superRefine((env, ctx) => {
