@@ -2,7 +2,8 @@ import type { RateLimiter } from '../domain/lead';
 
 /**
  * Sliding window per key. One process is enough for a few landing pages.
- * The map is capped: when full, the oldest keys are evicted first.
+ * The map is capped: when it is full of live keys, new keys are refused
+ * rather than evicting someone who is still inside their window.
  */
 export class MemoryRateLimiter implements RateLimiter {
   private readonly hits = new Map<string, number[]>();
@@ -18,9 +19,12 @@ export class MemoryRateLimiter implements RateLimiter {
     const from = now - this.windowMs;
     if (now - this.lastPrune > this.windowMs) this.prune(from, now);
 
+    if (!this.hits.has(key) && this.hits.size >= this.maxKeys) {
+      this.prune(from, now);
+      if (this.hits.size >= this.maxKeys) return Math.ceil(this.windowMs / 1000);
+    }
+
     const recent = (this.hits.get(key) ?? []).filter((time) => time > from);
-    // Re-insert so Map order tracks the most recently seen keys.
-    this.hits.delete(key);
 
     if (recent.length >= this.limit) {
       this.hits.set(key, recent);
@@ -30,7 +34,6 @@ export class MemoryRateLimiter implements RateLimiter {
 
     recent.push(now);
     this.hits.set(key, recent);
-    this.evictOverflow();
     return 0;
   }
 
@@ -38,13 +41,6 @@ export class MemoryRateLimiter implements RateLimiter {
     this.lastPrune = now;
     for (const [key, times] of this.hits) {
       if (times.every((time) => time <= from)) this.hits.delete(key);
-    }
-  }
-
-  private evictOverflow(): void {
-    for (const key of this.hits.keys()) {
-      if (this.hits.size <= this.maxKeys) break;
-      this.hits.delete(key);
     }
   }
 }

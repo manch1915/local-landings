@@ -47,9 +47,7 @@ export class LeadService {
     }
 
     // Counted after validation so a person fixing a typo doesn't burn the limit.
-    const retryAfterSec =
-      this.options.rateLimiter.hit(meta.clientKey, now.getTime()) ||
-      (this.options.siteRateLimiter?.hit(parsed.data.site, now.getTime()) ?? 0);
+    const retryAfterSec = this.options.rateLimiter.hit(meta.clientKey, now.getTime());
     if (retryAfterSec > 0) {
       return { status: 429, body: { ok: false, error: 'rate_limited', retryAfterSec } };
     }
@@ -62,6 +60,14 @@ export class LeadService {
     if (trap !== '' || elapsedMs === undefined || elapsedMs < this.options.minFillMs) {
       this.log('lead dropped as spam', { site: lead.site, trap: trap !== '', elapsedMs });
       return { status: 200, body: { ok: true, id: lead.id } };
+    }
+
+    // Only leads that are about to be delivered count against the site cap,
+    // so filtered spam can't use it up.
+    const siteRetry = this.options.siteRateLimiter?.hit(lead.site, now.getTime()) ?? 0;
+    if (siteRetry > 0) {
+      this.log('site cap reached', { site: lead.site, lead: lead.id });
+      return { status: 429, body: { ok: false, error: 'rate_limited', retryAfterSec: siteRetry } };
     }
 
     const results = await Promise.allSettled(

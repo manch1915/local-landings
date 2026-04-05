@@ -63,6 +63,19 @@ describe('LeadService', () => {
     expect(channels[0]?.delivered).toHaveLength(0);
   });
 
+  it('does not spend the site cap on spam', async () => {
+    const channel = new RecordingChannel('crm');
+    const service = new LeadService({
+      channels: [channel],
+      rateLimiter: new MemoryRateLimiter(10, 60_000),
+      siteRateLimiter: new MemoryRateLimiter(1, 60_000),
+      minFillMs: 2500,
+    });
+    await service.submit({ ...valid, website: 'spam' }, { clientKey: 'bot' });
+    const real = await service.submit(valid, { clientKey: 'person' });
+    expect(real.status).toBe(201);
+  });
+
   it('caps leads per site across all clients', async () => {
     const channel = new RecordingChannel('crm');
     const service = new LeadService({
@@ -131,13 +144,14 @@ describe('MemoryRateLimiter', () => {
     expect(limiter.hit('k', 10_001)).toBe(0);
   });
 
-  it('evicts the least recently seen keys past the cap', () => {
+  it('refuses new keys while the map is full of live ones', () => {
     const limiter = new MemoryRateLimiter(1, 60_000, 2);
     limiter.hit('a', 0);
     limiter.hit('b', 1);
-    limiter.hit('c', 2);
-    // "a" was evicted, so it gets a fresh slot.
-    expect(limiter.hit('a', 3)).toBe(0);
-    expect(limiter.hit('c', 4)).toBeGreaterThan(0);
+    expect(limiter.hit('c', 2)).toBe(60);
+    // Known keys keep their own window.
+    expect(limiter.hit('a', 3)).toBeGreaterThan(0);
+    // Once old windows expire there is room again.
+    expect(limiter.hit('c', 70_000)).toBe(0);
   });
 });
