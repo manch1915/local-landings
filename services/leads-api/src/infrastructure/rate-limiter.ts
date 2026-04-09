@@ -20,7 +20,8 @@ export class MemoryRateLimiter implements RateLimiter {
     if (now - this.lastPrune > this.windowMs) this.prune(from, now);
 
     if (!this.hits.has(key) && this.hits.size >= this.maxKeys) {
-      this.prune(from, now);
+      // Throttled, so a flood of new keys can't make every request a full scan.
+      if (now - this.lastPrune > 1000) this.prune(from, now);
       if (this.hits.size >= this.maxKeys) return Math.ceil(this.windowMs / 1000);
     }
 
