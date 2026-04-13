@@ -1,9 +1,12 @@
 import type { RateLimiter } from '../domain/lead';
 
+const OVERFLOW_KEY = '__overflow__';
+
 /**
  * Sliding window per key. One process is enough for a few landing pages.
- * The map is capped: when it is full of live keys, new keys are refused
- * rather than evicting someone who is still inside their window.
+ * The map is capped: when it is full of live keys, new clients share one
+ * overflow bucket with a larger limit instead of evicting live windows
+ * or locking everyone out.
  */
 export class MemoryRateLimiter implements RateLimiter {
   private readonly hits = new Map<string, number[]>();
@@ -19,15 +22,19 @@ export class MemoryRateLimiter implements RateLimiter {
     const from = now - this.windowMs;
     if (now - this.lastPrune > this.windowMs) this.prune(from, now);
 
+    let limit = this.limit;
     if (!this.hits.has(key) && this.hits.size >= this.maxKeys) {
       // Throttled, so a flood of new keys can't make every request a full scan.
       if (now - this.lastPrune > 1000) this.prune(from, now);
-      if (this.hits.size >= this.maxKeys) return Math.ceil(this.windowMs / 1000);
+      if (this.hits.size >= this.maxKeys) {
+        key = OVERFLOW_KEY;
+        limit = this.limit * 20;
+      }
     }
 
     const recent = (this.hits.get(key) ?? []).filter((time) => time > from);
 
-    if (recent.length >= this.limit) {
+    if (recent.length >= limit) {
       this.hits.set(key, recent);
       const oldest = recent[0] ?? now;
       return Math.max(1, Math.ceil((oldest + this.windowMs - now) / 1000));

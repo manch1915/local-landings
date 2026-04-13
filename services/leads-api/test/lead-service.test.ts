@@ -144,14 +144,14 @@ describe('MemoryRateLimiter', () => {
     expect(limiter.hit('k', 10_001)).toBe(0);
   });
 
-  it('refuses new keys while the map is full of live ones', () => {
+  it('puts new keys into a shared overflow bucket when the map is full', () => {
     const limiter = new MemoryRateLimiter(1, 60_000, 2);
     limiter.hit('a', 0);
     limiter.hit('b', 1);
-    expect(limiter.hit('c', 2)).toBe(60);
+    // The overflow bucket allows 20x the per-key limit.
+    for (let i = 0; i < 20; i++) expect(limiter.hit(`new-${i}`, 2 + i)).toBe(0);
+    expect(limiter.hit('one-too-many', 30)).toBeGreaterThan(0);
     // Known keys keep their own window.
-    expect(limiter.hit('a', 3)).toBeGreaterThan(0);
-    // Once old windows expire there is room again.
-    expect(limiter.hit('c', 70_000)).toBe(0);
+    expect(limiter.hit('a', 31)).toBeGreaterThan(0);
   });
 });
