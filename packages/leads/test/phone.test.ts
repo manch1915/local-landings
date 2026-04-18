@@ -11,8 +11,23 @@ describe('formatRuPhone', () => {
     ['89123456789', '+7 (912) 345-67-89'],
     ['+7 (912) 345-67-891111', '+7 (912) 345-67-89'],
     ['+7 (812', '+7 (812'],
+    ['8', '+7 ('],
+    ['+7 (8', '+7 (8'],
+    ['+7 ', ''],
   ])('formats %j as %j', (raw, expected) => {
     expect(formatRuPhone(raw)).toBe(expected);
+  });
+
+  it('reads a typed leading 8 as the country code', () => {
+    let value = '';
+    for (const digit of '89123456789') value = formatRuPhone(value + digit);
+    expect(value).toBe('+7 (912) 345-67-89');
+  });
+
+  it('keeps Kazan landline codes that start with 8', () => {
+    let value = '';
+    for (const digit of '88432114790') value = formatRuPhone(value + digit);
+    expect(value).toBe('+7 (843) 211-47-90');
   });
 
   it('is stable when applied to its own output', () => {

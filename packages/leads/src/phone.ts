@@ -7,14 +7,23 @@ function digitsOf(value: string): string {
 /** Local part of a Russian number: 10 digits after the country code. */
 function ruLocalDigits(value: string): string {
   let digits = digitsOf(value);
-  if (digits.startsWith('8') || digits.startsWith('7')) digits = digits.slice(1);
+  const hasCountryCode = value.trim().startsWith('+')
+    ? digits.startsWith('7')
+    : digits.startsWith('8') || digits.startsWith('7');
+  if (hasCountryCode) digits = digits.slice(1);
   return digits.slice(0, 10);
 }
 
-/** Progressive mask for typing: "9123" -> "+7 (912) 3". */
+/**
+ * Progressive mask for typing: "9123" -> "+7 (912) 3".
+ * A leading 8 or 7 is read as the country code, so "8" alone gives "+7 (".
+ */
 export function formatRuPhone(value: string): string {
   const local = ruLocalDigits(value);
-  if (local.length === 0) return '';
+  if (local.length === 0) {
+    const digits = digitsOf(value);
+    return !value.trim().startsWith('+') && (digits === '8' || digits === '7') ? '+7 (' : '';
+  }
 
   let out = '';
   let i = 0;
