@@ -1,0 +1,33 @@
+---
+interface Props {
+  /** Umami tracker URL, e.g. https://narcisbin.com/nb/script.js */
+  umamiSrc?: string | undefined;
+  umamiId?: string | undefined;
+  /** Yandex Metrika counter id. */
+  ymId?: string | undefined;
+}
+
+const { umamiSrc, umamiId, ymId } = Astro.props;
+const ymNumber = ymId ? Number(ymId) : undefined;
+---
+
+{umamiSrc && umamiId && <script is:inline defer src={umamiSrc} data-website-id={umamiId} />}
+{ymNumber && <script is:inline define:vars={{ ymNumber }}>
+  window.__ymId = ymNumber;
+  // Metrika loads after the page settles, so it never competes with the first paint.
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      window.ym =
+        window.ym ||
+        function (...args) {
+          (window.ym.a = window.ym.a || []).push(args);
+        };
+      window.ym.l = Date.now();
+      const tag = document.createElement('script');
+      tag.async = true;
+      tag.src = 'https://mc.yandex.ru/metrika/tag.js';
+      document.head.appendChild(tag);
+      window.ym(ymNumber, 'init', { webvisor: false, clickmap: true, accurateTrackBounce: true });
+    }, 1500);
+  });
+</script>}

@@ -1,0 +1,191 @@
+---
+import type { Locale, SiteId } from '@landings/leads';
+import { FORM_TEXT, type FormText } from '../lib/form-text';
+
+interface Props {
+  site: SiteId;
+  locale?: Locale;
+  formId?: string;
+  /** Saved with the lead so the manager knows which block it came from. */
+  source?: string;
+  endpoint?: string;
+  withMessage?: boolean;
+  privacyHref: string;
+  submitLabel?: string;
+  text?: Partial<Omit<FormText, 'errors'>>;
+  class?: string;
+}
+
+const {
+  site,
+  locale = 'ru',
+  formId = 'main',
+  source,
+  endpoint = '/api/leads',
+  withMessage = false,
+  privacyHref,
+  submitLabel,
+  text,
+  class: className = '',
+} = Astro.props;
+
+const t: FormText = { ...FORM_TEXT[locale], ...text };
+const id = `lf-${formId}`;
+const config = JSON.stringify({
+  site,
+  locale,
+  endpoint,
+  text: {
+    errors: t.errors,
+    rateLimited: t.rateLimited,
+    failed: t.failed,
+    offline: t.offline,
+    sending: t.sending,
+  },
+});
+const phoneHint = locale === 'ru' ? undefined : `${id}-phone-hint`;
+---
+
+<div class:list={['lf-root', className]} data-lead-root data-state="idle">
+  <form
+    class="lf"
+    data-lead-form
+    data-form-id={formId}
+    data-source={source ?? formId}
+    data-config={config}
+    novalidate
+  >
+    <div class="lf-context" data-lf-context hidden>
+      <p>
+        <span class="lf-context-label">{t.contextLabel}:</span>
+        <span data-lf-context-text></span>
+      </p>
+      <button type="button" class="lf-context-clear" data-lf-context-clear>
+        {t.contextClear}
+      </button>
+    </div>
+
+    <div class="lf-field">
+      <label class="lf-label" for={`${id}-name`}>
+        {t.name}
+      </label>
+      <input
+        class="lf-input"
+        id={`${id}-name`}
+        name="name"
+        type="text"
+        autocomplete="name"
+        maxlength="80"
+        placeholder={t.namePlaceholder}
+        aria-describedby={`${id}-name-error`}
+        required
+      />
+      <p class="lf-error" id={`${id}-name-error`} data-lf-error="name"></p>
+    </div>
+
+    <div class="lf-field">
+      <label class="lf-label" for={`${id}-phone`}>
+        {t.phone}
+      </label>
+      <input
+        class="lf-input"
+        id={`${id}-phone`}
+        name="phone"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        maxlength="32"
+        placeholder={t.phonePlaceholder}
+        aria-describedby={[`${id}-phone-error`, phoneHint].filter(Boolean).join(' ')}
+        required
+      />
+      {phoneHint && (
+        <p class="lf-hint" id={phoneHint}>
+          Include the country code, e.g. +44
+        </p>
+      )}
+      <p class="lf-error" id={`${id}-phone-error`} data-lf-error="phone"></p>
+    </div>
+
+    {withMessage && (
+      <div class="lf-field lf-field-wide">
+        <label class="lf-label" for={`${id}-message`}>
+          {t.message} <span class="lf-optional">({t.messagePlaceholder.toLowerCase()})</span>
+        </label>
+        <textarea
+          class="lf-input lf-textarea"
+          id={`${id}-message`}
+          name="message"
+          rows="3"
+          maxlength="1000"
+          aria-describedby={`${id}-message-error`}
+        />
+        <p class="lf-error" id={`${id}-message-error`} data-lf-error="message" />
+      </div>
+    )}
+
+    <div class="lf-trap" aria-hidden="true">
+      <label>
+        Website
+        <input type="text" name="website" tabindex="-1" autocomplete="off" data-lf-trap />
+      </label>
+    </div>
+
+    <div class="lf-field lf-field-wide">
+      <label class="lf-consent">
+        <input type="checkbox" name="consent" aria-describedby={`${id}-consent-error`} />
+        <span>
+          {t.consent} <a href={privacyHref}>{t.consentLink}</a>
+        </span>
+      </label>
+      <p class="lf-error" id={`${id}-consent-error`} data-lf-error="consent"></p>
+    </div>
+
+    <button type="submit" class="lf-submit">
+      <span data-lf-label>{submitLabel ?? t.submit}</span>
+    </button>
+    <p class="lf-status" data-lf-status role="alert"></p>
+    <slot name="after" />
+  </form>
+
+  <div class="lf-success" data-lf-success tabindex="-1" role="status">
+    <slot name="success-icon" />
+    <p class="lf-success-title">{t.successTitle}</p>
+    <p class="lf-success-text">{t.successText}</p>
+    <button type="button" class="lf-again" data-lf-again>
+      {t.successAgain}
+    </button>
+  </div>
+</div>
+
+<script>
+  import '../scripts/lead-form';
+</script>
+
+<style is:global>
+  .lf-root[data-state='success'] .lf,
+  .lf-root:not([data-state='success']) .lf-success {
+    display: none;
+  }
+  .lf-trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .lf-context[hidden] {
+    display: none;
+  }
+  .lf-error:empty,
+  .lf-status:empty {
+    display: none;
+  }
+  .lf-submit[disabled] {
+    cursor: progress;
+    opacity: 0.75;
+  }
+  .lf-success:focus {
+    outline: none;
+  }
+</style>
