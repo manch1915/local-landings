@@ -1,0 +1,450 @@
+---
+import { AREA_LIMITS, estimate, formatRub, formatRubRange, type Extra } from '../lib/estimate';
+import type { Page } from '../lib/content';
+
+interface Props {
+  calc: Page['calculator'];
+}
+
+const { calc } = Astro.props;
+const initial = {
+  area: calc.defaults.area,
+  property: 'secondary' as const,
+  scope: 'capital' as const,
+  bathrooms: calc.defaults.bathrooms,
+  extras: ['demolition', 'wiring'] as Extra[],
+};
+const result = estimate(initial, calc.prices);
+const extras = Object.entries(calc.labels.extras) as [Extra, string][];
+const lineLabels = {
+  works: 'Работы по площади',
+  bathrooms: 'Санузлы под ключ',
+  ...calc.labels.extras,
+};
+const config = JSON.stringify({ prices: calc.prices, labels: calc.labels, lineLabels });
+const ticks = Array.from({ length: 24 }, (_, i) => i);
+---
+
+<section id="calc" class="bg-graphite text-paper" aria-labelledby="calc-title">
+  <div class="wrap py-16 md:py-24">
+    <div class="max-w-2xl">
+      <h2 id="calc-title" class="section-title">
+        {calc.title}
+      </h2>
+      <p class="mt-4 text-lg text-[#c9c6bf]">{calc.lead}</p>
+    </div>
+
+    <form
+      class="calc mt-10 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-12"
+      data-calc={config}
+    >
+      <div class="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-8">
+        <div>
+          <div class="flex items-end justify-between gap-4">
+            <label for="calc-area" class="text-sm font-medium text-[#c9c6bf]">
+              Площадь квартиры
+            </label>
+            <div class="flex items-baseline gap-1.5">
+              <input
+                id="calc-area-number"
+                type="number"
+                inputmode="numeric"
+                min={AREA_LIMITS.min}
+                max={AREA_LIMITS.max}
+                value={initial.area}
+                class="num w-20 rounded-xs border border-graphite-soft bg-transparent px-2 py-1 text-right text-2xl font-semibold"
+                aria-label="Площадь, м², числом"
+                data-area-number
+              />
+              <span class="text-lg">м²</span>
+            </div>
+          </div>
+          <input
+            id="calc-area"
+            type="range"
+            min={AREA_LIMITS.min}
+            max={AREA_LIMITS.max}
+            step="1"
+            value={initial.area}
+            class="calc-range mt-4 w-full"
+            data-area-range
+          />
+          <div class="calc-ruler" aria-hidden="true">
+            {ticks.map((tick) => (
+              <span class:list={[tick % 5 === 0 && 'major']} />
+            ))}
+          </div>
+          <div class="num mt-1 flex justify-between text-xs text-[#9c9890]" aria-hidden="true">
+            <span>{AREA_LIMITS.min}</span>
+            <span>{AREA_LIMITS.max} м²</span>
+          </div>
+        </div>
+
+        <fieldset>
+          <legend class="text-sm font-medium text-[#c9c6bf]">Жильё</legend>
+          <div class="seg mt-3">
+            {(['new', 'secondary'] as const).map((value) => (
+              <label>
+                <input
+                  type="radio"
+                  name="property"
+                  value={value}
+                  checked={value === initial.property}
+                />
+                <span>{calc.labels.property[value]}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-sm font-medium text-[#c9c6bf]">Вид ремонта</legend>
+          <div class="seg mt-3">
+            {(['cosmetic', 'capital', 'design'] as const).map((value) => (
+              <label>
+                <input type="radio" name="scope" value={value} checked={value === initial.scope} />
+                <span>{calc.labels.scope[value]}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-sm font-medium text-[#c9c6bf]">Санузлов</legend>
+          <div class="seg seg-compact mt-3">
+            {[1, 2, 3].map((value) => (
+              <label>
+                <input
+                  type="radio"
+                  name="bathrooms"
+                  value={value}
+                  checked={value === initial.bathrooms}
+                />
+                <span class="num">{value}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-sm font-medium text-[#c9c6bf]">Дополнительно</legend>
+          <div class="mt-3 flex flex-wrap gap-2">
+            {extras.map(([value, label]) => (
+              <label class="chip">
+                <input
+                  type="checkbox"
+                  name="extras"
+                  value={value}
+                  checked={initial.extras.includes(value)}
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          <p class="mt-2 text-sm text-[#9c9890]" data-demolition-note hidden>
+            В новостройке демонтировать нечего, этот пункт не считаем.
+          </p>
+        </fieldset>
+      </div>
+
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <div class="rounded-sm bg-paper p-6 text-graphite shadow-raise sm:p-8" aria-live="polite">
+          <p class="text-sm text-muted">Работы под ключ</p>
+          <p class="num mt-1 text-[2rem] leading-tight font-semibold tracking-tight sm:text-[2.5rem]">
+            <output data-out="range">{formatRubRange(result.min, result.max)}</output>
+          </p>
+          <dl class="mt-5 grid grid-cols-2 gap-4 border-y border-line py-4">
+            <div>
+              <dt class="text-sm text-muted">За м²</dt>
+              <dd class="num text-lg font-semibold">
+                <output data-out="sqm">≈ {result.perSquareMeter.toLocaleString('ru-RU')} ₽</output>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm text-muted">Срок</dt>
+              <dd class="num text-lg font-semibold">
+                <output data-out="weeks">
+                  {result.weeks.min}–{result.weeks.max} недель
+                </output>
+              </dd>
+            </div>
+          </dl>
+          <ul class="mt-4 grid gap-2 text-[0.9375rem]" data-out="lines">
+            {result.lines.map((line) => (
+              <li class="flex justify-between gap-4">
+                <span class="text-muted">{lineLabels[line.key]}</span>
+                <span class="num">{formatRub(line.amount)}</span>
+              </li>
+            ))}
+          </ul>
+          <button type="button" class="btn btn-level mt-6 w-full text-lg" data-calc-send>
+            {calc.cta}
+          </button>
+          <p class="mt-4 text-sm leading-relaxed text-muted">{calc.note}</p>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  import { setLeadContext } from '@landings/ui/scripts/lead-context';
+  import {
+    clampArea,
+    estimate,
+    formatRub,
+    formatRubRange,
+    type Extra,
+    type PriceList,
+  } from '../lib/estimate';
+
+  interface CalcConfig {
+    prices: PriceList;
+    labels: {
+      property: Record<'new' | 'secondary', string>;
+      scope: Record<'cosmetic' | 'capital' | 'design', string>;
+      extras: Record<Extra, string>;
+    };
+    lineLabels: Record<string, string>;
+  }
+
+  const form = document.querySelector<HTMLFormElement>('form[data-calc]');
+  if (form) {
+    const config = JSON.parse(form.dataset.calc ?? '{}') as CalcConfig;
+    const range = form.querySelector<HTMLInputElement>('[data-area-range]');
+    const number = form.querySelector<HTMLInputElement>('[data-area-number]');
+    const out = (name: string) => form.querySelector<HTMLElement>(`[data-out="${name}"]`);
+    const note = form.querySelector<HTMLElement>('[data-demolition-note]');
+
+    const read = () => {
+      const data = new FormData(form);
+      return {
+        area: clampArea(Number(range?.value)),
+        property: data.get('property') === 'new' ? ('new' as const) : ('secondary' as const),
+        scope: (data.get('scope') ?? 'capital') as 'cosmetic' | 'capital' | 'design',
+        bathrooms: Number(data.get('bathrooms') ?? 1),
+        extras: data.getAll('extras') as Extra[],
+      };
+    };
+
+    const render = () => {
+      const input = read();
+      const result = estimate(input, config.prices);
+      const rangeOut = out('range');
+      const sqmOut = out('sqm');
+      const weeksOut = out('weeks');
+      const linesOut = out('lines');
+      if (rangeOut) rangeOut.textContent = formatRubRange(result.min, result.max);
+      if (sqmOut) sqmOut.textContent = `≈ ${result.perSquareMeter.toLocaleString('ru-RU')} ₽`;
+      if (weeksOut) weeksOut.textContent = `${result.weeks.min}–${result.weeks.max} недель`;
+      if (linesOut) {
+        linesOut.replaceChildren(
+          ...result.lines.map((line) => {
+            const li = document.createElement('li');
+            li.className = 'flex justify-between gap-4';
+            const name = document.createElement('span');
+            name.className = 'text-muted';
+            name.textContent = config.lineLabels[line.key] ?? line.key;
+            const amount = document.createElement('span');
+            amount.className = 'num';
+            amount.textContent = formatRub(line.amount);
+            li.append(name, amount);
+            return li;
+          }),
+        );
+      }
+      if (note) note.hidden = !(input.property === 'new' && input.extras.includes('demolition'));
+      range?.style.setProperty('--fill', `${((input.area - 15) / (250 - 15)) * 100}%`);
+      return { input, result };
+    };
+
+    range?.addEventListener('input', () => {
+      if (number) number.value = range.value;
+      render();
+    });
+    number?.addEventListener('change', () => {
+      const area = clampArea(Number(number.value));
+      number.value = String(area);
+      if (range) range.value = String(area);
+      render();
+    });
+    form.addEventListener('change', render);
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+    });
+    render();
+
+    form.querySelector('[data-calc-send]')?.addEventListener('click', () => {
+      const { input, result } = render();
+      const estimateText = formatRubRange(result.min, result.max);
+      const extras = input.extras
+        .filter((extra) => extra !== 'demolition' || input.property === 'secondary')
+        .map((extra) => config.labels.extras[extra].toLowerCase());
+      setLeadContext({
+        formId: 'main',
+        context: {
+          source: 'Калькулятор',
+          area: `${input.area} м²`,
+          property: config.labels.property[input.property],
+          scope: config.labels.scope[input.scope],
+          extras: extras.join(', ') || 'нет',
+          estimate: estimateText,
+        },
+        summary: `${input.area} м², ${config.labels.property[input.property].toLowerCase()}, ${config.labels.scope[input.scope].toLowerCase()} ремонт, ${estimateText}`,
+        focus: true,
+      });
+    });
+  }
+</script>
+
+<style>
+  .calc-range {
+    --fill: 16.6%;
+    appearance: none;
+    height: 2.75rem;
+    background: transparent;
+    cursor: pointer;
+  }
+  .calc-range::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--color-level) var(--fill),
+      var(--color-graphite-soft) var(--fill)
+    );
+  }
+  .calc-range::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-graphite-soft);
+  }
+  .calc-range::-moz-range-progress {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-level);
+  }
+  .calc-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    margin-top: -11px;
+    border: 3px solid var(--color-graphite);
+    border-radius: 2px;
+    background: var(--color-level);
+  }
+  .calc-range::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--color-graphite);
+    border-radius: 2px;
+    background: var(--color-level);
+  }
+  .calc-range:focus-visible {
+    outline-color: var(--color-level);
+  }
+  .calc-ruler {
+    display: flex;
+    justify-content: space-between;
+    height: 12px;
+    margin-top: -6px;
+    padding-inline: 12px;
+  }
+  .calc-ruler span {
+    width: 1px;
+    height: 6px;
+    background: #6b7077;
+  }
+  .calc-ruler span.major {
+    height: 12px;
+    background: #9c9890;
+  }
+
+  .seg {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    border: 1px solid var(--color-graphite-soft);
+    border-radius: var(--radius-sm);
+  }
+  .seg-compact {
+    max-width: 12rem;
+  }
+  .seg label {
+    position: relative;
+    min-width: 0;
+  }
+  @media (min-width: 30rem) {
+    .seg span {
+      padding-inline: 0.75rem;
+      font-size: 0.9375rem;
+    }
+  }
+  .seg label + label {
+    border-left: 1px solid var(--color-graphite-soft);
+  }
+  .seg input,
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .seg span {
+    display: grid;
+    place-items: center;
+    min-height: 3rem;
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+  .seg label:hover span {
+    background: rgb(255 255 255 / 0.06);
+  }
+  .seg input:checked + span {
+    background: var(--color-paper);
+    color: var(--color-graphite);
+    font-weight: 600;
+  }
+  .seg input:focus-visible + span,
+  .chip input:focus-visible + span {
+    outline: 3px solid var(--color-level);
+    outline-offset: 2px;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--color-graphite-soft);
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+  .chip span::before {
+    content: '';
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 1.5px solid currentColor;
+    border-radius: 2px;
+  }
+  .chip input:checked + span {
+    border-color: var(--color-level);
+    background: rgb(242 183 5 / 0.14);
+  }
+  .chip input:checked + span::before {
+    border-color: var(--color-level);
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-5' fill='none' stroke='%232a2e33' stroke-width='2'/%3E%3C/svg%3E")
+        center / 100% no-repeat,
+      var(--color-level);
+  }
+</style>

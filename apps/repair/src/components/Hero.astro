@@ -1,0 +1,63 @@
+---
+import type { Page } from '../lib/content';
+import { telHref } from '../lib/content';
+import FloorPlan from './FloorPlan.astro';
+
+interface Props {
+  hero: Page['hero'];
+  phone: string;
+}
+
+const { hero, phone } = Astro.props;
+---
+
+<section id="top" class="overflow-hidden border-b border-line" aria-labelledby="hero-title">
+  <div class="wrap grid items-center gap-10 py-10 md:py-16 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:py-20">
+    <div>
+      <h1
+        id="hero-title"
+        class="max-w-[16ch] text-[2.375rem] leading-[1.04] font-semibold tracking-[-0.03em] text-balance sm:text-5xl lg:text-[3.75rem]"
+      >
+        {hero.title}
+      </h1>
+      <p class="mt-6 max-w-[46ch] text-lg leading-relaxed text-muted">{hero.lead}</p>
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+        <a href="#calc" class="btn btn-level text-lg">
+          {hero.cta}
+        </a>
+        <p class="text-muted">
+          или позвоните{' '}
+          <a
+            href={telHref(phone)}
+            class="num font-medium text-graphite underline-offset-4 hover:underline"
+          >
+            {phone}
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="relative">
+      <div class="graph-paper rounded-sm border border-line p-4 [--fp-bg:var(--color-concrete)] sm:p-8 lg:pb-32">
+        <FloorPlan variant="two" animate title="План двухкомнатной квартиры 54 м² с размерами" />
+      </div>
+      <div class="relative mt-4 border border-graphite bg-white text-sm lg:absolute lg:right-6 lg:-bottom-6 lg:mt-0 lg:w-[19rem]">
+        <p class="border-b border-graphite px-3 py-2 font-medium">Ремонт под ключ, Казань</p>
+        <dl class="grid grid-cols-2">
+          {hero.stamp.map((cell, index) => (
+            <div
+              class:list={[
+                'px-3 py-2',
+                index % 2 === 0 && 'border-r border-graphite',
+                index < 2 && 'border-b border-graphite',
+              ]}
+            >
+              <dt class="text-xs text-muted">{cell.label}</dt>
+              <dd class="num text-lg font-semibold">{cell.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>

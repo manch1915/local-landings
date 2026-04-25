@@ -1,0 +1,50 @@
+---
+import type { Page } from '../lib/content';
+
+interface Props {
+  reviews: Page['reviews'];
+  about: Page['about'];
+}
+
+const { reviews, about } = Astro.props;
+---
+
+<section class="border-t border-line bg-concrete" aria-labelledby="reviews-title">
+  <div class="wrap py-16 md:py-24">
+    <h2 id="reviews-title" class="section-title">
+      Что говорят заказчики
+    </h2>
+    <div class="mt-10 grid gap-6 md:grid-cols-3">
+      {reviews.map((review) => (
+        <figure class="flex flex-col justify-between gap-6 rounded-sm bg-paper p-6 sm:p-7">
+          <blockquote class="leading-relaxed">
+            <p>{review.text}</p>
+          </blockquote>
+          <figcaption class="border-t border-line pt-4">
+            <span class="block font-semibold">{review.name}</span>
+            <span class="text-sm text-muted">
+              {review.place}, {review.object}
+            </span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+
+    <div class="mt-16 grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+      <div>
+        <h2 class="section-title">{about.title}</h2>
+        {about.text.map((paragraph) => (
+          <p class="mt-4 max-w-prose text-lg leading-relaxed text-muted">{paragraph}</p>
+        ))}
+      </div>
+      <dl class="grid content-start gap-px self-center overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-3">
+        {about.facts.map((fact) => (
+          <div class="flex flex-col bg-paper p-6">
+            <dt class="order-2 mt-1 text-muted">{fact.label}</dt>
+            <dd class="num order-1 text-4xl font-semibold tracking-tight">{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>

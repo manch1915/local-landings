@@ -1,0 +1,136 @@
+---
+import Check from '@lucide/astro/icons/check';
+import Clock from '@lucide/astro/icons/clock';
+import MapPin from '@lucide/astro/icons/map-pin';
+import Phone from '@lucide/astro/icons/phone';
+import LeadForm from '@landings/ui/components/LeadForm.astro';
+import MapFacade from '@landings/ui/components/MapFacade.astro';
+import type { Page } from '../lib/content';
+import { telHref } from '../lib/content';
+import Messengers from './Messengers.astro';
+
+interface Props {
+  lead: Page['lead'];
+  site: Page['site'];
+}
+
+const { lead, site } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<section id="lead" class="bg-graphite text-paper" aria-labelledby="lead-title">
+  <div class="wrap grid gap-12 py-16 md:py-24 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+    <div>
+      <h2 id="lead-title" class="section-title max-w-md">
+        {lead.title}
+      </h2>
+      <p class="mt-4 max-w-md text-lg leading-relaxed text-[#c9c6bf]">{lead.text}</p>
+
+      <ul class="mt-10 grid gap-5">
+        <li class="flex gap-3">
+          <Phone size={20} class="mt-1 flex-none text-level" aria-hidden="true" />
+          <div>
+            <a href={telHref(site.phone)} class="num text-xl font-semibold hover:underline">
+              {site.phone}
+            </a>
+            <p class="text-sm text-[#9c9890]">{site.hours}</p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <MapPin size={20} class="mt-1 flex-none text-level" aria-hidden="true" />
+          <p>{site.address}</p>
+        </li>
+        <li class="flex gap-3">
+          <Clock size={20} class="mt-1 flex-none text-level" aria-hidden="true" />
+          <p>Офис принимает по записи, на объекты выезжаем по всей Казани</p>
+        </li>
+      </ul>
+      <div class="mt-8 text-paper">
+        <Messengers messengers={site.messengers} />
+      </div>
+    </div>
+
+    <div class="self-start rounded-sm bg-paper p-6 text-graphite sm:p-8">
+      <LeadForm
+        site="repair"
+        privacyHref={`${base}/privacy/`}
+        withMessage
+        submitLabel="Записаться на замер"
+        text={{ successText: lead.success, messagePlaceholder: 'Необязательно' }}
+      >
+        <span slot="success-icon" class="grid size-12 place-items-center rounded-full bg-level">
+          <Check size={26} aria-hidden="true" />
+        </span>
+      </LeadForm>
+    </div>
+  </div>
+
+  <MapFacade
+    lat={site.geo.lat}
+    lon={site.geo.lon}
+    label="Показать карту"
+    address={site.address}
+    class="map relative grid min-h-[22rem] items-end border-t border-graphite-soft"
+  >
+    <svg viewBox="0 0 1200 352" preserveAspectRatio="xMidYMid slice" class="size-full">
+      <rect width="1200" height="352" fill="#33383e" />
+      <g stroke="#454b52" stroke-width="18" fill="none">
+        <path d="M-20 90 C 300 120, 520 40, 1220 110" />
+        <path d="M120 -20 L 260 380" />
+        <path d="M640 -20 C 600 140, 700 220, 660 380" />
+        <path d="M-20 270 L 1220 230" />
+      </g>
+      <g stroke="#3e444a" stroke-width="8" fill="none">
+        <path d="M380 -20 L 420 380" />
+        <path d="M880 -20 L 820 380" />
+        <path d="M-20 180 L 1220 170" />
+      </g>
+      <path
+        d="M1000 -20 C 940 120, 1080 240, 1010 380"
+        stroke="#2f5d8a"
+        stroke-width="40"
+        fill="none"
+        opacity="0.55"
+      />
+      <circle
+        cx="652"
+        cy="176"
+        r="10"
+        fill="var(--color-level)"
+        stroke="#2a2e33"
+        stroke-width="4"
+      />
+    </svg>
+  </MapFacade>
+</section>
+
+<style is:global>
+  .map .map-facade-actions {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding: 1.5rem 1rem;
+  }
+  @media (min-width: 48rem) {
+    .map .map-facade-actions {
+      padding-inline: 2rem;
+    }
+  }
+  .map .map-facade-button {
+    min-height: 3rem;
+    padding: 0.75rem 1.375rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-paper);
+    color: var(--color-graphite);
+    font-weight: 600;
+  }
+  .map .map-facade-link {
+    color: var(--color-paper);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .map[data-loaded] {
+    display: block;
+    height: 26rem;
+  }
+</style>

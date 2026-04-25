@@ -1,0 +1,293 @@
+---
+type Variant = 'studio' | 'two' | 'three';
+
+interface Room {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  name: string;
+  area: string;
+}
+
+interface Door {
+  /** Hinge point, the leaf direction and which wall it sits on. */
+  x: number;
+  y: number;
+  dir: 'up' | 'down' | 'left' | 'right';
+}
+
+interface Plan {
+  rooms: Room[];
+  doors: Door[];
+  windows: { x: number; y: number; len: number; side: 'h' | 'v' }[];
+  width: string;
+  depth: string;
+}
+
+interface Props {
+  variant?: Variant;
+  /** Hero version draws itself on load. */
+  animate?: boolean;
+  class?: string;
+  title: string;
+}
+
+const { variant = 'two', animate = false, class: className = '', title } = Astro.props;
+
+// Frame: walls run from (60, 50) to (520, 350).
+const PLANS: Record<Variant, Plan> = {
+  two: {
+    width: '9 200',
+    depth: '6 100',
+    rooms: [
+      { x: 60, y: 50, w: 220, h: 180, name: 'Кухня-гостиная', area: '19,6' },
+      { x: 280, y: 50, w: 240, h: 180, name: 'Спальня', area: '15,2' },
+      { x: 60, y: 230, w: 240, h: 120, name: 'Прихожая', area: '9,4' },
+      { x: 300, y: 230, w: 110, h: 120, name: 'Санузел', area: '4,6' },
+      { x: 410, y: 230, w: 110, h: 120, name: 'Гардероб', area: '5,2' },
+    ],
+    doors: [
+      { x: 200, y: 230, dir: 'up' },
+      { x: 330, y: 230, dir: 'up' },
+      { x: 300, y: 260, dir: 'right' },
+      { x: 410, y: 316, dir: 'right' },
+      { x: 90, y: 350, dir: 'up' },
+    ],
+    windows: [
+      { x: 100, y: 50, len: 110, side: 'h' },
+      { x: 340, y: 50, len: 120, side: 'h' },
+      { x: 520, y: 90, len: 90, side: 'v' },
+    ],
+  },
+  studio: {
+    width: '6 300',
+    depth: '4 300',
+    rooms: [
+      { x: 60, y: 50, w: 320, h: 300, name: 'Комната с кухней', area: '19,2' },
+      { x: 380, y: 50, w: 140, h: 130, name: 'Санузел', area: '3,4' },
+      { x: 380, y: 180, w: 140, h: 170, name: 'Прихожая', area: '4,4' },
+    ],
+    doors: [
+      { x: 380, y: 210, dir: 'left' },
+      { x: 410, y: 180, dir: 'up' },
+      { x: 470, y: 350, dir: 'up' },
+    ],
+    windows: [
+      { x: 110, y: 50, len: 180, side: 'h' },
+      { x: 60, y: 140, len: 120, side: 'v' },
+    ],
+  },
+  three: {
+    width: '11 200',
+    depth: '7 300',
+    rooms: [
+      { x: 60, y: 50, w: 200, h: 170, name: 'Гостиная', area: '20,3' },
+      { x: 260, y: 50, w: 140, h: 170, name: 'Спальня', area: '14,1' },
+      { x: 400, y: 50, w: 120, h: 170, name: 'Детская', area: '12,2' },
+      { x: 60, y: 220, w: 160, h: 130, name: 'Кухня', area: '12,8' },
+      { x: 220, y: 220, w: 160, h: 130, name: 'Прихожая', area: '12,4' },
+      { x: 380, y: 220, w: 70, h: 130, name: 'С/у', area: '4,1' },
+      { x: 450, y: 220, w: 70, h: 130, name: 'Ванная', area: '5,1' },
+    ],
+    doors: [
+      { x: 140, y: 220, dir: 'up' },
+      { x: 300, y: 220, dir: 'up' },
+      { x: 420, y: 220, dir: 'up' },
+      { x: 220, y: 250, dir: 'left' },
+      { x: 380, y: 300, dir: 'right' },
+      { x: 450, y: 250, dir: 'right' },
+      { x: 330, y: 350, dir: 'up' },
+    ],
+    windows: [
+      { x: 100, y: 50, len: 110, side: 'h' },
+      { x: 290, y: 50, len: 80, side: 'h' },
+      { x: 420, y: 50, len: 80, side: 'h' },
+      { x: 60, y: 260, len: 60, side: 'v' },
+    ],
+  },
+};
+
+const plan = PLANS[variant];
+const LEAF = 32;
+
+function doorPath({ x, y, dir }: Door): { gap: string; leaf: string } {
+  switch (dir) {
+    case 'up':
+      return {
+        gap: `M${x} ${y}h${LEAF}`,
+        leaf: `M${x} ${y}v${-LEAF}A${LEAF} ${LEAF} 0 0 1 ${x + LEAF} ${y}`,
+      };
+    case 'down':
+      return {
+        gap: `M${x} ${y}h${LEAF}`,
+        leaf: `M${x} ${y}v${LEAF}A${LEAF} ${LEAF} 0 0 0 ${x + LEAF} ${y}`,
+      };
+    case 'left':
+      return {
+        gap: `M${x} ${y}v${LEAF}`,
+        leaf: `M${x} ${y}h${-LEAF}A${LEAF} ${LEAF} 0 0 0 ${x} ${y + LEAF}`,
+      };
+    case 'right':
+      return {
+        gap: `M${x} ${y}v${LEAF}`,
+        leaf: `M${x} ${y}h${LEAF}A${LEAF} ${LEAF} 0 0 1 ${x} ${y + LEAF}`,
+      };
+  }
+}
+---
+
+<svg
+  viewBox="0 0 560 400"
+  class:list={['floor-plan', animate && 'floor-plan-draw', className]}
+  role="img"
+  aria-label={title}
+>
+  <g class="fp-rooms" fill="none" stroke="var(--color-graphite)" stroke-width="3">
+    {plan.rooms.map((room) => (
+      <rect x={room.x} y={room.y} width={room.w} height={room.h} />
+    ))}
+  </g>
+  <rect
+    class="fp-outer"
+    x="60"
+    y="50"
+    width="460"
+    height="300"
+    fill="none"
+    stroke="var(--color-graphite)"
+    stroke-width="9"
+  />
+
+  <g class="fp-openings">
+    {plan.windows.map((win) =>
+      win.side === 'h' ? (
+        <g>
+          <rect
+            x={win.x}
+            y={win.y - 5}
+            width={win.len}
+            height="10"
+            fill="var(--fp-bg, var(--color-paper))"
+          />
+          <path
+            d={`M${win.x} ${win.y - 5}h${win.len}M${win.x} ${win.y}h${win.len}M${win.x} ${win.y + 5}h${win.len}`}
+            stroke="var(--color-pencil)"
+            stroke-width="1.5"
+          />
+        </g>
+      ) : (
+        <g>
+          <rect
+            x={win.x - 5}
+            y={win.y}
+            width="10"
+            height={win.len}
+            fill="var(--fp-bg, var(--color-paper))"
+          />
+          <path
+            d={`M${win.x - 5} ${win.y}v${win.len}M${win.x} ${win.y}v${win.len}M${win.x + 5} ${win.y}v${win.len}`}
+            stroke="var(--color-pencil)"
+            stroke-width="1.5"
+          />
+        </g>
+      ),
+    )}
+    {plan.doors.map((door) => {
+      const { gap, leaf } = doorPath(door);
+      return (
+        <g>
+          <path d={gap} stroke="var(--fp-bg, var(--color-paper))" stroke-width="11" />
+          <path d={leaf} fill="none" stroke="var(--color-graphite)" stroke-width="1.5" />
+        </g>
+      );
+    })}
+  </g>
+
+  <g class="fp-labels" text-anchor="middle" font-family="inherit">
+    {plan.rooms.map((room) => (
+      <text x={room.x + room.w / 2} y={room.y + room.h / 2}>
+        <tspan x={room.x + room.w / 2} font-size="13" fill="var(--color-graphite)">
+          {room.name}
+        </tspan>
+        <tspan x={room.x + room.w / 2} dy="17" font-size="12" fill="var(--color-muted)">
+          {room.area} м²
+        </tspan>
+      </text>
+    ))}
+  </g>
+
+  <g class="fp-dims" stroke="var(--color-pencil)" stroke-width="1" fill="var(--color-pencil)">
+    <path d="M60 22H520M60 14v16M520 14v16M54 28l12-12M514 28l12-12" />
+    <text x="290" y="16" text-anchor="middle" font-size="13" stroke="none" class="num">
+      {plan.width}
+    </text>
+    <path d="M28 50V350M20 50h16M20 350h16M22 56l12-12M22 356l12-12" />
+    <text
+      x="20"
+      y="200"
+      text-anchor="middle"
+      font-size="13"
+      stroke="none"
+      transform="rotate(-90 20 200)"
+      class="num"
+    >
+      {plan.depth}
+    </text>
+  </g>
+</svg>
+
+<style>
+  .floor-plan {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .floor-plan text {
+    font-family: var(--font-sans);
+  }
+
+  .floor-plan-draw .fp-outer,
+  .floor-plan-draw .fp-rooms rect {
+    stroke-dasharray: 1600;
+    stroke-dashoffset: 1600;
+    animation: fp-draw 1.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+  .floor-plan-draw .fp-rooms rect {
+    animation-delay: 0.35s;
+  }
+  .floor-plan-draw .fp-openings,
+  .floor-plan-draw .fp-labels,
+  .floor-plan-draw .fp-dims {
+    opacity: 0;
+    animation: fp-fade 0.5s ease forwards;
+    animation-delay: 1.3s;
+  }
+  .floor-plan-draw .fp-dims {
+    animation-delay: 1.6s;
+  }
+
+  @keyframes fp-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes fp-fade {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floor-plan-draw .fp-outer,
+    .floor-plan-draw .fp-rooms rect,
+    .floor-plan-draw .fp-openings,
+    .floor-plan-draw .fp-labels,
+    .floor-plan-draw .fp-dims {
+      animation: none;
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+  }
+</style>

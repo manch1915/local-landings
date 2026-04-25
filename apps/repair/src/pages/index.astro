@@ -1,0 +1,65 @@
+---
+import Faq from '@landings/ui/components/Faq.astro';
+import JsonLd from '@landings/ui/components/JsonLd.astro';
+import { faqPage, localBusiness } from '@landings/ui/lib/schema-org';
+import Calculator from '../components/Calculator.astro';
+import Cases from '../components/Cases.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import LeadSection from '../components/LeadSection.astro';
+import Levels from '../components/Levels.astro';
+import Reviews from '../components/Reviews.astro';
+import Stages from '../components/Stages.astro';
+import Layout from '../layouts/Layout.astro';
+import { getPage } from '../lib/content';
+
+const page = await getPage();
+const siteUrl = new URL(import.meta.env.BASE_URL, Astro.site).href;
+
+const business = localBusiness({
+  type: 'HomeAndConstructionBusiness',
+  name: page.site.name,
+  description: page.seo.description,
+  url: siteUrl,
+  telephone: page.site.phone.replace(/[^\d+]/g, ''),
+  image: new URL('og.png', siteUrl).href,
+  priceRange: `от ${page.calculator.prices.perSquareMeter.cosmetic} ₽/м²`,
+  address: {
+    street: 'ул. Островского, 38, офис 412',
+    city: page.site.city,
+    region: 'Республика Татарстан',
+    postalCode: page.site.postalCode,
+    country: 'RU',
+  },
+  geo: page.site.geo,
+  areaServed: page.site.city,
+  hours: [{ days: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'], opens: '09:00', closes: '20:00' }],
+  sameAs: page.site.messengers.map((messenger) => messenger.url),
+});
+---
+
+<Layout title={page.seo.title} description={page.seo.description} ogAlt={page.seo.ogAlt}>
+  <JsonLd slot="head" data={[business, faqPage(page.faq)]} />
+  <Header phone={page.site.phone} />
+  <main id="main">
+    <Hero hero={page.hero} phone={page.site.phone} />
+    <Calculator calc={page.calculator} />
+    <Levels levels={page.levels} prices={page.calculator.prices.perSquareMeter} />
+    <Stages stages={page.stages} promises={page.promises} />
+    <Cases cases={page.cases} />
+    <Reviews reviews={page.reviews} about={page.about} />
+    <section
+      id="faq"
+      class="wrap grid gap-10 py-16 md:py-24 lg:grid-cols-[1fr_2fr]"
+      aria-labelledby="faq-title"
+    >
+      <h2 id="faq-title" class="section-title">
+        Частые вопросы
+      </h2>
+      <Faq items={page.faq} />
+    </section>
+    <LeadSection lead={page.lead} site={page.site} />
+  </main>
+  <Footer legalName={page.site.legalName} />
+</Layout>

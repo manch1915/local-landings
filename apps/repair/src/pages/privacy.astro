@@ -1,0 +1,57 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+import { getPage } from '../lib/content';
+
+const page = await getPage();
+const { site } = page;
+---
+
+<Layout
+  title={`Политика конфиденциальности | ${site.name}`}
+  description={`Как ${site.legalName} обрабатывает персональные данные, которые вы оставляете на сайте.`}
+  ogAlt={page.seo.ogAlt}
+  noindex
+>
+  <Header phone={site.phone} />
+  <main id="main" class="wrap max-w-3xl py-16">
+    <h1 class="section-title">Политика конфиденциальности</h1>
+    <div class="prose-legal mt-8 grid gap-5 leading-relaxed text-muted">
+      <p>
+        Оператор персональных данных: {site.legalName}, {site.address}. Политика действует для всех
+        данных, которые вы отправляете через формы на этом сайте.
+      </p>
+      <h2>Какие данные мы получаем</h2>
+      <p>
+        Имя, номер телефона, комментарий и параметры из калькулятора, если вы приложили расчёт к
+        заявке. Сайт также собирает обезличенную статистику посещений без cookie.
+      </p>
+      <h2>Зачем</h2>
+      <p>
+        Чтобы перезвонить, договориться о замере и подготовить смету. Мы не передаём данные третьим
+        лицам и не используем их для рассылок.
+      </p>
+      <h2>Сколько храним</h2>
+      <p>
+        Пока действует договор и ещё три года после его окончания. Если договор не заключён, удаляем
+        данные через шесть месяцев после заявки.
+      </p>
+      <h2>Как отозвать согласие</h2>
+      <p>
+        Напишите в мессенджер или позвоните по номеру {site.phone}. Удалим данные в течение 10
+        рабочих дней.
+      </p>
+    </div>
+  </main>
+  <Footer legalName={site.legalName} />
+</Layout>
+
+<style>
+  .prose-legal h2 {
+    margin-top: 1rem;
+    color: var(--color-graphite);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+</style>

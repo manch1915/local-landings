@@ -1,0 +1,51 @@
+---
+import Check from '@lucide/astro/icons/check';
+import type { Page } from '../lib/content';
+
+interface Props {
+  levels: Page['levels'];
+  prices: Page['calculator']['prices']['perSquareMeter'];
+}
+
+const { levels, prices } = Astro.props;
+---
+
+<section id="prices" class="wrap py-16 md:py-24" aria-labelledby="prices-title">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <h2 id="prices-title" class="section-title max-w-xl">
+      Цены на работы за квадратный метр
+    </h2>
+    <p class="max-w-sm text-muted">
+      Без материалов. Санузел считается отдельно, его цена есть в калькуляторе.
+    </p>
+  </div>
+
+  <div class="mt-10 grid border-t border-graphite md:grid-cols-3">
+    {levels.map((level, index) => (
+      <article
+        class:list={[
+          'flex flex-col gap-5 border-b border-line py-8 md:border-b-0 md:px-8 md:first:pl-0 md:last:pr-0',
+          index > 0 && 'md:border-l md:border-line',
+        ]}
+      >
+        <h3 class="text-xl font-semibold">{level.name}</h3>
+        <p class="num">
+          <span class="text-sm text-muted">от </span>
+          <span class="text-4xl font-semibold tracking-tight">
+            {prices[level.id].toLocaleString('ru-RU')}
+          </span>
+          <span class="text-lg"> ₽/м²</span>
+        </p>
+        <p class="text-muted">{level.fits}</p>
+        <ul class="grid gap-2.5">
+          {level.includes.map((item) => (
+            <li class="flex gap-2.5">
+              <Check size={18} class="mt-0.5 flex-none text-pencil" aria-hidden="true" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+    ))}
+  </div>
+</section>

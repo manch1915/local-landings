@@ -1,0 +1,31 @@
+---
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Send from '@lucide/astro/icons/send';
+import type { Page } from '../lib/content';
+
+interface Props {
+  messengers: Page['site']['messengers'];
+}
+
+const { messengers } = Astro.props;
+---
+
+<ul class="flex flex-wrap gap-2">
+  {messengers.map((messenger) => (
+    <li>
+      <a
+        href={messenger.url}
+        target="_blank"
+        rel="noopener"
+        class="btn btn-ghost min-h-11 px-4 text-[0.9375rem] font-medium"
+      >
+        {messenger.kind === 'telegram' ? (
+          <Send size={18} aria-hidden="true" />
+        ) : (
+          <MessageCircle size={18} aria-hidden="true" />
+        )}
+        Написать в {messenger.label}
+      </a>
+    </li>
+  ))}
+</ul>

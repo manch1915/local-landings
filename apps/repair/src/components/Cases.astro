@@ -1,0 +1,49 @@
+---
+import type { Page } from '../lib/content';
+import FloorPlan from './FloorPlan.astro';
+
+interface Props {
+  cases: Page['cases'];
+}
+
+const { cases } = Astro.props;
+---
+
+<section id="cases" class="wrap py-16 md:py-24" aria-labelledby="cases-title">
+  <h2 id="cases-title" class="section-title max-w-2xl">
+    Недавние объекты
+  </h2>
+  <p class="mt-4 max-w-xl text-lg text-muted">
+    Цены указаны за работы, как в смете, которую подписал заказчик.
+  </p>
+
+  <div class="mt-10 grid gap-6 lg:grid-cols-3">
+    {cases.map((item) => (
+      <article class="flex flex-col rounded-sm border border-line bg-white">
+        <div class="border-b border-line bg-paper p-5 [--fp-bg:var(--color-paper)]">
+          <FloorPlan variant={item.plan} title={`План: ${item.title}`} />
+        </div>
+        <div class="flex flex-1 flex-col p-6">
+          <h3 class="text-lg font-semibold">{item.title}</h3>
+          <p class="mt-1 text-sm text-muted">{item.property}</p>
+          <dl class="num mt-5 grid grid-cols-3 gap-3 border-y border-line py-4">
+            <div>
+              <dt class="text-xs text-muted">Площадь</dt>
+              <dd class="font-semibold">{item.area} м²</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Срок</dt>
+              <dd class="font-semibold">{item.weeks} нед.</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Работы</dt>
+              <dd class="font-semibold">{item.budget}</dd>
+            </div>
+          </dl>
+          <p class="mt-4 text-sm font-medium">{item.scope}</p>
+          <p class="mt-2 leading-relaxed text-muted">{item.story}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
