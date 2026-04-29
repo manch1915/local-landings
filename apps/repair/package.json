@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
-    "@fontsource-variable/geologica": "^5.3.0",
     "@landings/leads": "*",
     "@landings/ui": "*",
     "@lucide/astro": "^1.59.0",
