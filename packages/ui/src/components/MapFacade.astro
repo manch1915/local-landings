@@ -6,10 +6,19 @@ interface Props {
   /** Shown on the button and used as the iframe title. */
   label: string;
   address: string;
+  externalLabel?: string;
   class?: string;
 }
 
-const { lat, lon, zoom = 16, label, address, class: className = '' } = Astro.props;
+const {
+  lat,
+  lon,
+  zoom = 16,
+  label,
+  address,
+  externalLabel = 'Яндекс Карты',
+  class: className = '',
+} = Astro.props;
 
 // The Yandex widget weighs ~1 MB, so it loads only when someone asks for the map.
 const src = `https://yandex.ru/map-widget/v1/?ll=${lon}%2C${lat}&z=${zoom}&pt=${lon}%2C${lat}%2Cpm2rdm`;
@@ -25,7 +34,7 @@ const external = `https://yandex.ru/maps/?pt=${lon},${lat}&z=${zoom}&l=map`;
       {label}
     </button>
     <a class="map-facade-link" href={external} target="_blank" rel="noopener">
-      Яндекс Карты
+      {externalLabel}
     </a>
   </div>
 </div>
