@@ -1,0 +1,116 @@
+---
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Send from '@lucide/astro/icons/send';
+import LeadForm from '@landings/ui/components/LeadForm.astro';
+import MapFacade from '@landings/ui/components/MapFacade.astro';
+import type { Page } from '../lib/content';
+import { href, telHref } from '../lib/content';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { lead, site } = page;
+const write = page.locale === 'ru' ? 'Написать в' : 'Message on';
+---
+
+<section id="lead" class="bg-ink text-white" aria-labelledby="lead-title">
+  <div class="wrap grid gap-12 py-16 md:py-24 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+    <div>
+      <h2 id="lead-title" class="section-title max-w-md">
+        {lead.title}
+      </h2>
+      <p class="mt-4 max-w-md text-lg text-sky">{lead.text}</p>
+      <ul class="mt-8 flex flex-wrap gap-2">
+        {site.messengers.map((messenger) => (
+          <li>
+            <a
+              href={messenger.url}
+              target="_blank"
+              rel="noopener"
+              class="btn btn-sticky min-h-11 px-5"
+            >
+              {messenger.kind === 'telegram' ? (
+                <Send size={18} aria-hidden="true" />
+              ) : (
+                <MessageCircle size={18} aria-hidden="true" />
+              )}
+              {write} {messenger.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="mt-8">
+        <a
+          href={telHref(site.phone)}
+          class="font-display text-2xl font-extrabold tabular-nums hover:underline"
+        >
+          {site.phone}
+        </a>
+      </p>
+      <p class="mt-2 text-sky">{lead.online}</p>
+      <p class="text-sky">{site.address}</p>
+      <MapFacade
+        lat={site.geo.lat}
+        lon={site.geo.lon}
+        label={lead.mapLabel}
+        address={site.address}
+        externalLabel={page.locale === 'ru' ? 'Яндекс Карты' : 'Yandex Maps'}
+        class="tutor-map mt-6 grid min-h-48 items-end overflow-hidden rounded-[var(--radius-card)]"
+      >
+        <svg viewBox="0 0 480 200" preserveAspectRatio="xMidYMid slice" class="size-full">
+          <rect width="480" height="200" fill="#3a4685" />
+          <g stroke="#4c5896" stroke-width="12" fill="none" stroke-linecap="round">
+            <path d="M-10 70 H 490" />
+            <path d="M-10 150 C 160 140, 300 170, 490 140" />
+            <path d="M120 -10 V 210" />
+            <path d="M330 -10 C 320 80, 350 120, 340 210" />
+          </g>
+          <circle
+            cx="226"
+            cy="70"
+            r="9"
+            fill="var(--color-sticky)"
+            stroke="#25306b"
+            stroke-width="4"
+          />
+        </svg>
+      </MapFacade>
+    </div>
+
+    <div class="self-start rounded-[var(--radius-card)] bg-paper p-6 text-ink sm:p-8">
+      <LeadForm
+        site="tutor"
+        locale={page.locale}
+        privacyHref={href(page.locale, 'privacy/')}
+        withMessage
+        submitLabel={page.hero.cta}
+        text={{ successText: lead.success }}
+      />
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .tutor-map .map-facade-actions {
+    padding: 1rem;
+  }
+  .tutor-map .map-facade-button {
+    min-height: 2.75rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .tutor-map .map-facade-link {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .tutor-map[data-loaded] {
+    display: block;
+    height: 20rem;
+  }
+</style>

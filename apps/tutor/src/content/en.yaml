@@ -1,0 +1,273 @@
+# English version. Prices are in US dollars for students outside Russia.
+
+locale: en
+currency: USD
+site:
+  name: Anna Mironova
+  role: English tutor
+  phone: '+7 (912) 604-18-35'
+  city: Yekaterinburg
+  address: '51 Malysheva St, office 1204, Yekaterinburg, Russia'
+  postalCode: '620075'
+  geo: { lat: 56.8361, lon: 60.6062 }
+  messengers:
+    - { kind: telegram, label: Telegram, url: 'https://t.me/anna_mironova_english' }
+    - { kind: max, label: MAX, url: 'https://max.ru/anna_mironova_english' }
+
+seo:
+  title: 'Online English tutor for adults and teens | Anna Mironova'
+  description: 'Speaking practice, business English and IELTS prep with a CELTA-certified tutor. One-to-one or in small groups, online. Free 30-minute trial lesson.'
+  ogAlt: 'Anna Mironova, English tutor: find your course in a minute'
+
+nav:
+  courses: Courses and prices
+  lessons: How lessons work
+  reviews: Reviews
+  faq: FAQ
+  cta: Free trial
+  langSwitch: Русский
+  skip: Skip to content
+
+hero:
+  title: English for people who understand it but freeze when they speak
+  lead: >-
+    One-to-one lessons online. You do 80% of the talking. I note your mistakes
+    and go through them after the lesson, so you never get cut off mid-sentence.
+    The first 30-minute lesson is free.
+  credentials: [CELTA, IELTS 8.5, 9 years teaching]
+  cta: Book a free trial lesson
+
+quiz:
+  title: Find your course in a minute
+  status: usually replies within an hour
+  greeting: Hi! Answer four quick questions and I'll suggest where to start.
+  questions:
+    goal:
+      text: What do you need English for?
+      options:
+        work: Work
+        relocation: Moving abroad
+        exam: An exam
+        kid: My child
+        travel: Myself and travel
+    exam:
+      text: Which exam?
+      options:
+        ielts: IELTS
+        school: Cambridge B2 or C1
+    level:
+      text: How is your English right now?
+      options:
+        zero: Close to zero
+        basic: I get simple phrases
+        middle: I understand but struggle to speak
+        confident: I speak but want to be fluent
+    format:
+      text: How would you like to study?
+      options:
+        solo: One-to-one
+        pair: With a friend or colleague
+        club: In a group of up to 5
+    perWeek:
+      text: How many lessons a week?
+      options:
+        '1': Once a week
+        '2': Twice
+        '3': Three times
+  result:
+    intro: 'The {course} course is a good fit.'
+    price: '{perWeek} a week at {lesson} per lesson. A monthly package comes to {monthly}.'
+    perWeek: ['one lesson', 'two lessons', 'three lessons']
+    adjusted: >-
+      Starting from zero in a group is hard, so I suggest one-to-one lessons first.
+      You can join the speaking club in a couple of months.
+    cta: Book a free trial lesson
+    restart: Start over
+  summary: 'Quiz: {course}, {perWeek} a week'
+
+pricing:
+  pairShare: 0.65
+  packageDiscount: 0.1
+
+audiences:
+  - id: adults
+    title: Adults
+    text: For work, moving abroad and travel. Lessons are built around your field and goals.
+  - id: teens
+    title: Teens aged 10 to 17
+    text: Cambridge exam prep, help with school English and real conversation without cramming.
+
+courses:
+  - id: speaking
+    audience: adults
+    name: Speaking practice
+    format: 'One-to-one, 60 minutes'
+    price: 30
+    points:
+      - Stop translating in your head and answer straight away
+      - Topics from your life, not from a 2005 textbook
+      - A list of your mistakes with fixes after every lesson
+  - id: business
+    audience: adults
+    name: English for work
+    format: 'One-to-one, 60 minutes'
+    price: 34
+    points:
+      - Calls, emails, presentations and job interviews
+      - Rehearse real meetings before they happen
+      - Vocabulary for your field, from IT to healthcare
+  - id: ielts
+    audience: adults
+    name: IELTS preparation
+    format: 'One-to-one, 60 minutes'
+    price: 38
+    points:
+      - A mock test in the first lesson and a plan to your target band
+      - Writing checked against the examiners' criteria
+      - Speaking practised in the real exam format
+  - id: club
+    audience: adults
+    name: Speaking club
+    format: 'Group of up to 5, 75 minutes'
+    price: 12
+    points:
+      - From A2 up, once you have something to say
+      - A new topic every week, no homework
+      - Weekday evenings, drop in any time
+  - id: school
+    audience: teens
+    name: Cambridge B2 and C1
+    format: 'One-to-one, 60 minutes'
+    price: 32
+    points:
+      - Every part of the exam, with extra focus on writing and speaking
+      - A mock exam every month with detailed feedback
+      - A short progress report to parents each month
+  - id: teens
+    audience: teens
+    name: English for teens
+    format: 'One-to-one, 60 minutes'
+    price: 28
+    points:
+      - Catch up with school English without cramming
+      - 'Talk about what they actually like: games, shows, music'
+      - For ages 10 and up
+
+coursesMeta:
+  packageNote: 'A monthly package is 10% cheaper. In a pair each student pays 65% of the price.'
+  priceSuffix: per lesson
+
+lessons:
+  title: How lessons work
+  points:
+    - title: On Zoom or Google Meet
+      text: You get the link 10 minutes before we start. A laptop and headphones are all you need.
+    - title: You do the talking
+      text: I ask questions and steer the conversation. My job is to get you speaking more than me.
+    - title: Mistakes after class
+      text: I don't interrupt. I note your mistakes and send a breakdown on Telegram the same evening.
+    - title: 20 minutes of homework
+      text: Short tasks you can do on your commute. No four-page exercises.
+  correctionsTitle: What a mistake breakdown looks like
+  correctionsNext: Another one
+  corrections:
+    - wrong: I am agree with you.
+      right: I agree with you.
+      note: Agree is already a verb, so am isn't needed.
+    - wrong: He said me that the meeting is cancelled.
+      right: He told me the meeting was cancelled.
+      note: You tell someone something. After told, the tense shifts back.
+    - wrong: I will call you when I will arrive.
+      right: I'll call you when I arrive.
+      note: After when, use the present simple for the future.
+    - wrong: Can you explain me this task?
+      right: Can you explain this task to me?
+      note: Explain needs to before the person.
+
+about:
+  title: About me
+  text:
+    - >-
+      I've been teaching English for nine years. I lived and worked in Dublin
+      for two years, so I know how it feels when everyone at work talks fast
+      and you're still searching for words.
+    - >-
+      I work with adults who need English for their jobs and with teenagers
+      preparing for exams. I use a textbook as a backbone and take topics
+      from your life.
+  facts:
+    - { value: '340', label: students since 2017 }
+    - { value: '8.5', label: IELTS Academic score }
+    - { value: CELTA, label: Cambridge teaching certificate }
+
+reviews:
+  title: What students say
+  items:
+    - name: Dmitry
+      role: IT team lead
+      result: 'B1 → B2 in 4 months'
+      text: >-
+        For a year I sat through calls with American colleagues and typed in the
+        chat because I was afraid to speak. Now I run the daily stand-up myself.
+        Rehearsing meetings helped the most.
+    - name: Ekaterina
+      role: moving to Canada
+      result: 'IELTS 6.0 → 7.5'
+      text: >-
+        I needed 7 in every section, and writing was stuck at 6. Anna went through
+        each essay against the criteria. Three months later I got 7.5.
+    - name: Olga, Sonya's mother
+      role: 9th grade
+      result: 'Top mark in the state exam'
+      text: >-
+        Sonya was shy about the speaking part. They talked about her favourite shows
+        in class, and by exam day she had stopped freezing up. I also liked the
+        monthly reports.
+
+faq:
+  - question: What happens in the trial lesson?
+    answer: >-
+      30 minutes on Zoom. We chat a little in English, I check your level and
+      explain how I'd plan your lessons. It's free with no strings attached.
+  - question: Can I reschedule?
+    answer: >-
+      Yes, with 12 hours' notice. Later than that the lesson counts as taken,
+      but once a month you can move one lesson with no conditions.
+  - question: How do I pay?
+    answer: >-
+      Per lesson or with a monthly package at 10% off. If a package doesn't
+      work out, I refund the lessons you haven't taken.
+  - question: How long until I can speak?
+    answer: >-
+      With two lessons a week and a little homework, most students notice a
+      difference in 6 to 8 weeks. Moving up a level takes 3 to 5 months.
+  - question: Do you teach children under 10?
+    answer: >-
+      No, only from age 10. Younger kids need a different approach, and I can
+      recommend a colleague.
+  - question: Which time zone are you in?
+    answer: >-
+      Yekaterinburg, UTC+5. I have morning slots for students in Asia and
+      evening slots that suit Europe.
+
+lead:
+  title: Book a free trial lesson
+  text: >-
+    Leave your number and I'll message you on Telegram or call to find a time.
+    I usually reply within an hour.
+  success: I'll message you on Telegram or call within an hour during the day.
+  online: Online anywhere, or in person in Yekaterinburg
+  mapLabel: Show the office on the map
+
+footer:
+  privacy: Privacy policy
+  demo: 'Demo project: the tutor, students and contacts are fictional. Built by'
+  author: Levon Oganesian
+
+privacy:
+  title: Privacy policy
+  body:
+    - 'Data controller: Anna Mironova, sole proprietor. This policy covers the data you send through the forms on this site.'
+    - 'I receive your name, phone number, message and quiz answers if you attach them. The site collects anonymous visit statistics without cookies.'
+    - 'I use this data to contact you and arrange a trial lesson. I never share it with third parties or send newsletters.'
+    - 'I keep the data while we study together and for one year after. To withdraw consent, message me on Telegram and I will delete your data within 10 working days.'

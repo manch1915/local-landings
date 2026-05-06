@@ -1,0 +1,8 @@
+---
+import Privacy from '../../components/Privacy.astro';
+import { getPage } from '../../lib/content';
+
+const page = await getPage('ru');
+---
+
+<Privacy page={page} />

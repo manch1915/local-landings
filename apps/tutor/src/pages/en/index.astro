@@ -1,0 +1,8 @@
+---
+import Landing from '../../components/Landing.astro';
+import { getPage } from '../../lib/content';
+
+const page = await getPage('en');
+---
+
+<Landing page={page} />

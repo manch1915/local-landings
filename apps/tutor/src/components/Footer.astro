@@ -1,0 +1,27 @@
+---
+import type { Page } from '../lib/content';
+import { href } from '../lib/content';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+---
+
+<footer class="border-t border-ink-soft bg-ink text-sky">
+  <div class="wrap flex flex-col gap-4 py-8 text-sm md:flex-row md:items-center md:justify-between">
+    <p>
+      © 2026 {page.site.name}.
+      <a href={href(page.locale, 'privacy/')} class="underline underline-offset-2 hover:text-white">
+        {page.footer.privacy}
+      </a>
+    </p>
+    <p class="max-w-md md:text-good">
+      {page.footer.demo}
+      <a href="https://narcisbin.com" class="text-white underline underline-offset-2">
+        {page.footer.author}
+      </a>
+    </p>
+  </div>
+</footer>

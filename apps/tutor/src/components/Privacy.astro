@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import type { Page } from '../lib/content';
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+---
+
+<Layout
+  locale={page.locale}
+  title={`${page.privacy.title} | ${page.site.name}`}
+  description={page.privacy.body[0] ?? page.privacy.title}
+  ogAlt={page.seo.ogAlt}
+  skipLabel={page.nav.skip}
+  path="privacy/"
+  noindex
+>
+  <Header page={page} path="privacy/" />
+  <main id="main" class="wrap max-w-3xl py-16">
+    <h1 class="section-title">{page.privacy.title}</h1>
+    <div class="mt-8 grid gap-5 text-lg text-muted">
+      {page.privacy.body.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+  </main>
+  <Footer page={page} />
+</Layout>

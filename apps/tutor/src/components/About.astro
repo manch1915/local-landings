@@ -1,0 +1,58 @@
+---
+import type { Page } from '../lib/content';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { about, reviews } = page;
+---
+
+<section class="bg-mint/45" aria-labelledby="about-title">
+  <div class="wrap grid gap-12 py-16 md:py-24 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+    <div>
+      <h2 id="about-title" class="section-title">
+        {about.title}
+      </h2>
+      {about.text.map((paragraph) => (
+        <p class="mt-5 max-w-prose text-lg">{paragraph}</p>
+      ))}
+    </div>
+    <dl class="grid content-center gap-4 sm:grid-cols-3 lg:grid-cols-1">
+      {about.facts.map((fact) => (
+        <div class="flex flex-col rounded-[var(--radius-card)] bg-white px-6 py-5">
+          <dt class="order-2 text-muted">{fact.label}</dt>
+          <dd class="order-1 font-display text-4xl font-extrabold tabular-nums">{fact.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<section id="reviews" class="wrap py-16 md:py-24" aria-labelledby="reviews-title">
+  <h2 id="reviews-title" class="section-title">
+    {reviews.title}
+  </h2>
+  <div class="mt-10 grid gap-5 md:grid-cols-3">
+    {reviews.items.map((review, index) => (
+      <figure class="flex flex-col gap-5 rounded-[var(--radius-card)] border-[1.5px] border-line bg-white p-6">
+        <p
+          class:list={[
+            'self-start rounded-full px-3 py-1 text-sm font-semibold',
+            ['bg-sticky', 'bg-mint', 'bg-sky'][index % 3],
+          ]}
+        >
+          {review.result}
+        </p>
+        <blockquote class="flex-1">
+          <p>{review.text}</p>
+        </blockquote>
+        <figcaption>
+          <span class="font-display font-extrabold">{review.name}</span>,
+          <span class="text-muted">{review.role}</span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</section>

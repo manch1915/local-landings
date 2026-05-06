@@ -1,0 +1,69 @@
+---
+import Faq from '@landings/ui/components/Faq.astro';
+import JsonLd from '@landings/ui/components/JsonLd.astro';
+import { faqPage, localBusiness } from '@landings/ui/lib/schema-org';
+import Layout from '../layouts/Layout.astro';
+import type { Page } from '../lib/content';
+import About from './About.astro';
+import Courses from './Courses.astro';
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import LeadSection from './LeadSection.astro';
+import Lessons from './Lessons.astro';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const siteUrl = new URL(import.meta.env.BASE_URL, Astro.site).href;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const cheapest = Math.min(...page.courses.map((course) => course.price));
+
+const business = localBusiness({
+  type: 'EducationalOrganization',
+  name: page.site.name,
+  description: page.seo.description,
+  url: pageUrl,
+  telephone: page.site.phone.replace(/[^\d+]/g, ''),
+  image: new URL(page.locale === 'en' ? 'og-en.png' : 'og.png', siteUrl).href,
+  priceRange: `${cheapest}+ ${page.currency}`,
+  address: {
+    street: page.locale === 'ru' ? 'ул. Малышева, 51, офис 1204' : '51 Malysheva St, office 1204',
+    city: page.site.city,
+    postalCode: page.site.postalCode,
+    country: 'RU',
+  },
+  geo: page.site.geo,
+  areaServed: page.locale === 'ru' ? 'Онлайн и Екатеринбург' : 'Online',
+  sameAs: page.site.messengers.map((messenger) => messenger.url),
+});
+---
+
+<Layout
+  locale={page.locale}
+  title={page.seo.title}
+  description={page.seo.description}
+  ogAlt={page.seo.ogAlt}
+  skipLabel={page.nav.skip}
+>
+  <JsonLd slot="head" data={[business, faqPage(page.faq)]} />
+  <Header page={page} />
+  <main id="main">
+    <Hero page={page} />
+    <Courses page={page} />
+    <Lessons page={page} />
+    <About page={page} />
+    <section id="faq" class="bg-sky/60" aria-labelledby="faq-title">
+      <div class="wrap grid gap-10 py-16 md:py-24 lg:grid-cols-[1fr_2fr]">
+        <h2 id="faq-title" class="section-title">
+          {page.nav.faq}
+        </h2>
+        <Faq items={page.faq} />
+      </div>
+    </section>
+    <LeadSection page={page} />
+  </main>
+  <Footer page={page} />
+</Layout>

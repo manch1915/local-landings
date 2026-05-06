@@ -1,0 +1,29 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+import { getPage, href } from '../lib/content';
+
+const page = await getPage('ru');
+---
+
+<Layout
+  locale="ru"
+  title="Страница не найдена"
+  description="Такой страницы нет."
+  ogAlt={page.seo.ogAlt}
+  skipLabel={page.nav.skip}
+  noindex
+>
+  <Header page={page} />
+  <main id="main" class="wrap py-24">
+    <h1 class="section-title">Такой страницы нет</h1>
+    <p class="mt-4 max-w-md text-lg text-muted">
+      Возможно, ссылка устарела. Подбор курса и цены на главной.
+    </p>
+    <a href={href('ru')} class="btn btn-ink mt-8">
+      На главную
+    </a>
+  </main>
+  <Footer page={page} />
+</Layout>

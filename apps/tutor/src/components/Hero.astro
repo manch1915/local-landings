@@ -1,0 +1,43 @@
+---
+import type { Page } from '../lib/content';
+import QuizChat from './QuizChat.astro';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+---
+
+<section class="overflow-hidden" aria-labelledby="hero-title">
+  <div class="wrap grid items-center gap-10 py-10 md:py-16 lg:grid-cols-[1.1fr_1fr] lg:gap-16 lg:py-20">
+    <div>
+      <ul
+        class="flex flex-wrap gap-2"
+        aria-label={page.locale === 'ru' ? 'Квалификация' : 'Qualifications'}
+      >
+        {page.hero.credentials.map((item, index) => (
+          <li
+            class:list={[
+              'rounded-full px-3 py-1 text-sm font-semibold',
+              index === 0 ? 'bg-sticky' : index === 1 ? 'bg-mint' : 'bg-sky',
+            ]}
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+      <h1
+        id="hero-title"
+        class="display mt-6 max-w-[15ch] text-[2.5rem] leading-[1.02] sm:text-[3.25rem] lg:text-[4rem]"
+      >
+        {page.hero.title}
+      </h1>
+      <p class="mt-6 max-w-[48ch] text-lg text-muted">{page.hero.lead}</p>
+      <a href="#lead" class="btn btn-ink mt-8 text-lg">
+        {page.hero.cta}
+      </a>
+    </div>
+    <QuizChat page={page} />
+  </div>
+</section>

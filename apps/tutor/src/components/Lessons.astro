@@ -1,0 +1,101 @@
+---
+import type { Page } from '../lib/content';
+import Avatar from './Avatar.astro';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { lessons } = page;
+const first = lessons.corrections[0];
+---
+
+<section id="lessons" class="wrap py-16 md:py-24" aria-labelledby="lessons-title">
+  <div class="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
+    <div>
+      <h2 id="lessons-title" class="section-title">
+        {lessons.title}
+      </h2>
+      <dl class="mt-10 grid gap-8 sm:grid-cols-2">
+        {lessons.points.map((point) => (
+          <div>
+            <dt class="font-display text-lg font-extrabold">{point.title}</dt>
+            <dd class="mt-2 text-muted">{point.text}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <figure
+      class="self-start rounded-[var(--radius-card)] bg-ink p-5 text-white sm:p-7"
+      data-corrections={JSON.stringify(lessons.corrections)}
+    >
+      <figcaption class="flex items-center gap-3">
+        <Avatar initials={page.locale === 'ru' ? 'АМ' : 'AM'} size="sm" />
+        <span class="font-display font-extrabold">{lessons.correctionsTitle}</span>
+      </figcaption>
+      <div
+        class="mt-5 rounded-[var(--radius-bubble)] bg-white p-5 text-ink"
+        aria-live="polite"
+        data-correction
+      >
+        <p class="text-bad line-through decoration-2" data-wrong>
+          {first?.wrong}
+        </p>
+        <p class="mt-2 text-lg font-semibold text-good" data-right>
+          {first?.right}
+        </p>
+        <p class="mt-3 border-t border-line pt-3 text-[0.9375rem] text-muted" data-note>
+          {first?.note}
+        </p>
+      </div>
+      <div class="mt-4 flex items-center justify-between gap-4">
+        <span class="text-sm text-sky tabular-nums" data-counter>
+          1 / {lessons.corrections.length}
+        </span>
+        <button type="button" class="btn btn-sticky min-h-11 px-5" data-next>
+          {lessons.correctionsNext}
+        </button>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<script>
+  interface Correction {
+    wrong: string;
+    right: string;
+    note: string;
+  }
+
+  const box = document.querySelector<HTMLElement>('[data-corrections]');
+  if (box) {
+    const items = JSON.parse(box.dataset.corrections ?? '[]') as Correction[];
+    const card = box.querySelector<HTMLElement>('[data-correction]');
+    let index = 0;
+    box.querySelector('[data-next]')?.addEventListener('click', () => {
+      index = (index + 1) % items.length;
+      const item = items[index];
+      if (!item || !card) return;
+      const set = (selector: string, text: string) => {
+        const el = box.querySelector(selector);
+        if (el) el.textContent = text;
+      };
+      set('[data-wrong]', item.wrong);
+      set('[data-right]', item.right);
+      set('[data-note]', item.note);
+      set('[data-counter]', `${index + 1} / ${items.length}`);
+      card.animate(
+        [
+          { opacity: 0, transform: 'translateY(6px)' },
+          { opacity: 1, transform: 'none' },
+        ],
+        {
+          duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220,
+          easing: 'ease-out',
+        },
+      );
+    });
+  }
+</script>

@@ -1,0 +1,66 @@
+---
+import { Font } from 'astro:assets';
+import Analytics from '@landings/ui/components/Analytics.astro';
+import Seo from '@landings/ui/components/Seo.astro';
+import { href, type Locale } from '../lib/content';
+import '../styles/global.css';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  ogAlt: string;
+  skipLabel: string;
+  /** Path after the locale prefix, used for hreflang links. */
+  path?: string;
+  noindex?: boolean;
+}
+
+const { locale, title, description, ogAlt, skipLabel, path = '', noindex = false } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const alternates = [
+  { hreflang: 'ru', href: href('ru', path) },
+  { hreflang: 'en', href: href('en', path) },
+  { hreflang: 'x-default', href: href('ru', path) },
+];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Font
+      cssVariable="--font-nunito"
+      preload={[{ subset: locale === 'ru' ? 'cyrillic' : 'latin' }]}
+    />
+    <Font cssVariable="--font-golos" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <Seo
+      title={title}
+      description={description}
+      image={`${base}/og${locale === 'en' ? '-en' : ''}.png`}
+      imageAlt={ogAlt}
+      locale={locale === 'ru' ? 'ru_RU' : 'en_US'}
+      siteName={locale === 'ru' ? 'Анна Миронова' : 'Anna Mironova'}
+      themeColor="#25306b"
+      alternates={alternates}
+      noindex={noindex}
+    />
+    <slot name="head" />
+    <Analytics
+      umamiSrc={import.meta.env.PUBLIC_UMAMI_SRC}
+      umamiId={import.meta.env.PUBLIC_UMAMI_ID}
+      ymId={import.meta.env.PUBLIC_YM_ID}
+    />
+  </head>
+  <body class="min-h-dvh">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-sticky focus:px-4 focus:py-2 focus:font-semibold"
+    >
+      {skipLabel}
+    </a>
+    <slot />
+  </body>
+</html>
