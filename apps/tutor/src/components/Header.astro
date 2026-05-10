@@ -22,9 +22,13 @@ const links = [
 <header class="sticky top-0 z-40 border-b border-line bg-paper">
   <div class="wrap flex h-16 items-center justify-between gap-4">
     <a href={href(page.locale)} class="flex items-center gap-2.5 rounded-full">
-      <Avatar initials={page.locale === 'ru' ? 'АМ' : 'AM'} size="sm" />
+      <span class="hidden min-[380px]:contents">
+        <Avatar initials={page.locale === 'ru' ? 'АМ' : 'AM'} size="sm" />
+      </span>
       <span class="leading-tight">
-        <span class="block font-display font-extrabold whitespace-nowrap">{page.site.name}</span>
+        <span class="block font-display text-[0.9375rem] font-extrabold whitespace-nowrap sm:text-base">
+          {page.site.name}
+        </span>
         <span class="hidden text-xs text-muted sm:block">{page.site.role}</span>
       </span>
     </a>
@@ -43,12 +47,17 @@ const links = [
       <a
         href={href(other, path)}
         hreflang={other}
+        aria-label={page.nav.langSwitch}
         lang={other}
         class="rounded-full px-2 py-2 text-sm font-semibold text-ink-soft hover:bg-sky sm:px-3"
       >
-        {page.nav.langSwitch}
+        <span class="sm:hidden">{other.toUpperCase()}</span>
+        <span class="hidden sm:inline">{page.nav.langSwitch}</span>
       </a>
-      <a href="#lead" class="btn btn-ink min-h-11 px-4 text-[0.9375rem] whitespace-nowrap">
+      <a
+        href="#lead"
+        class="btn btn-ink min-h-11 px-3.5 text-[0.9375rem] whitespace-nowrap sm:px-4"
+      >
         {page.nav.cta}
       </a>
     </div>
