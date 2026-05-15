@@ -1,0 +1,41 @@
+---
+import type { Page } from '../lib/content';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const colors = ['bg-tangerine text-plum', 'bg-electric text-white', 'bg-sun text-plum'];
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .map((part) => part[0])
+    .join('');
+---
+
+<section id="trainers" class="bg-plum text-white" aria-labelledby="trainers-title">
+  <div class="wrap py-16 md:py-24">
+    <h2 id="trainers-title" class="section-title">
+      Тренеры
+    </h2>
+    <div class="mt-10 grid gap-4 md:grid-cols-3">
+      {page.trainers.map((trainer, index) => (
+        <article class="rounded-2xl bg-plum-soft p-6">
+          <span
+            class:list={[
+              'grid size-20 place-items-center rounded-2xl font-display text-2xl font-extrabold',
+              colors[index % colors.length],
+            ]}
+            aria-hidden="true"
+          >
+            {initials(trainer.name)}
+          </span>
+          <h3 class="mt-6 font-display text-xl font-extrabold">{trainer.name}</h3>
+          <p class="mt-1 font-semibold text-tangerine">{trainer.role}</p>
+          <p class="mt-3 text-powder">{trainer.text}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

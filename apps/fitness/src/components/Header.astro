@@ -1,0 +1,56 @@
+---
+import Phone from '@lucide/astro/icons/phone';
+import { telHref } from '../lib/content';
+import Logo from './Logo.astro';
+
+interface Props {
+  phone: string;
+}
+
+const { phone } = Astro.props;
+const links = [
+  { href: '#directions', label: 'Направления' },
+  { href: '#schedule', label: 'Расписание' },
+  { href: '#plans', label: 'Абонементы' },
+  { href: '#trainers', label: 'Тренеры' },
+  { href: '#faq', label: 'Вопросы' },
+];
+---
+
+<header class="sticky top-0 z-40 bg-plum text-white">
+  <div class="wrap flex h-16 items-center justify-between gap-4">
+    <a href="#top" aria-label="Каденс, на главную" class="rounded-lg">
+      <Logo />
+    </a>
+    <nav aria-label="Разделы" class="hidden lg:block">
+      <ul class="flex gap-7 text-[0.9375rem] font-medium">
+        {links.map((link) => (
+          <li>
+            <a href={link.href} class="py-2 text-powder/85 transition-colors hover:text-tangerine">
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a
+        href={telHref(phone)}
+        class="hidden font-semibold whitespace-nowrap tabular-nums hover:text-tangerine sm:inline"
+      >
+        {phone}
+      </a>
+      <a
+        href={telHref(phone)}
+        class="grid size-11 place-items-center rounded-lg border-2 border-plum-soft sm:hidden"
+        aria-label={`Позвонить ${phone}`}
+      >
+        <Phone size={20} aria-hidden="true" />
+      </a>
+      <a href="#lead" class="btn btn-tangerine min-h-11 px-4 text-[0.9375rem] whitespace-nowrap">
+        <span class="sm:hidden">Пробная</span>
+        <span class="hidden sm:inline">Пробная бесплатно</span>
+      </a>
+    </div>
+  </div>
+</header>

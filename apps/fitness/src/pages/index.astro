@@ -1,0 +1,67 @@
+---
+import Faq from '@landings/ui/components/Faq.astro';
+import JsonLd from '@landings/ui/components/JsonLd.astro';
+import { faqPage, localBusiness } from '@landings/ui/lib/schema-org';
+import Directions from '../components/Directions.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import LeadSection from '../components/LeadSection.astro';
+import Plans from '../components/Plans.astro';
+import Results from '../components/Results.astro';
+import Schedule from '../components/Schedule.astro';
+import Trainers from '../components/Trainers.astro';
+import Layout from '../layouts/Layout.astro';
+import { getPage } from '../lib/content';
+
+const page = await getPage();
+const siteUrl = new URL(import.meta.env.BASE_URL, Astro.site).href;
+
+const business = localBusiness({
+  type: 'ExerciseGym',
+  name: page.site.name,
+  description: page.seo.description,
+  url: siteUrl,
+  telephone: page.site.phone.replace(/[^\d+]/g, ''),
+  image: new URL('og.png', siteUrl).href,
+  priceRange: `от ${Math.min(...page.plans.items.map((plan) => plan.price))} ₽`,
+  address: {
+    street: 'ул. Октябрьская, 42, 2 этаж',
+    city: page.site.city,
+    region: 'Новосибирская область',
+    postalCode: page.site.postalCode,
+    country: 'RU',
+  },
+  geo: page.site.geo,
+  hours: [
+    { days: ['Mo', 'Tu', 'We', 'Th', 'Fr'], opens: '07:00', closes: '22:00' },
+    { days: ['Sa', 'Su'], opens: '09:00', closes: '20:00' },
+  ],
+  sameAs: page.site.messengers.map((messenger) => messenger.url),
+});
+---
+
+<Layout title={page.seo.title} description={page.seo.description} ogAlt={page.seo.ogAlt}>
+  <JsonLd slot="head" data={[business, faqPage(page.faq)]} />
+  <Header phone={page.site.phone} />
+  <main id="main">
+    <Hero page={page} />
+    <Directions page={page} />
+    <Schedule page={page} />
+    <Plans page={page} />
+    <Trainers page={page} />
+    <Results page={page} />
+    <section
+      id="faq"
+      class="wrap grid gap-10 py-16 md:py-24 lg:grid-cols-[1fr_1.6fr]"
+      aria-labelledby="faq-title"
+    >
+      <h2 id="faq-title" class="section-title">
+        Частые вопросы
+      </h2>
+      <Faq items={page.faq} />
+    </section>
+    <LeadSection page={page} />
+  </main>
+  <Footer legalName={page.site.legalName} />
+</Layout>

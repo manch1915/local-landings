@@ -1,0 +1,51 @@
+---
+import { Font } from 'astro:assets';
+import Analytics from '@landings/ui/components/Analytics.astro';
+import Seo from '@landings/ui/components/Seo.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogAlt: string;
+  noindex?: boolean;
+}
+
+const { title, description, ogAlt, noindex = false } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Font cssVariable="--font-unbounded" preload={[{ subset: 'cyrillic' }]} />
+    <Font cssVariable="--font-onest" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <Seo
+      title={title}
+      description={description}
+      image={`${base}/og.png`}
+      imageAlt={ogAlt}
+      siteName="Каденс"
+      themeColor="#2b1033"
+      noindex={noindex}
+    />
+    <slot name="head" />
+    <Analytics
+      umamiSrc={import.meta.env.PUBLIC_UMAMI_SRC}
+      umamiId={import.meta.env.PUBLIC_UMAMI_ID}
+      ymId={import.meta.env.PUBLIC_YM_ID}
+    />
+  </head>
+  <body class="min-h-dvh">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-tangerine focus:rounded-lg focus:px-4 focus:py-2 focus:font-semibold"
+    >
+      К содержанию
+    </a>
+    <slot />
+  </body>
+</html>

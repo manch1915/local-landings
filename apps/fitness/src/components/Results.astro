@@ -1,0 +1,46 @@
+---
+import type { Page } from '../lib/content';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { results } = page;
+---
+
+<section class="wrap py-16 md:py-24" aria-labelledby="results-title">
+  <h2 id="results-title" class="section-title max-w-3xl">
+    {results.title}
+  </h2>
+
+  <dl class="mt-10 grid gap-4 sm:grid-cols-3">
+    {results.facts.map((fact) => (
+      <div class="flex flex-col border-t-2 border-plum pt-4">
+        <dt class="order-2 text-muted">{fact.label}</dt>
+        <dd class="order-1 font-display text-5xl font-extrabold tracking-tight tabular-nums">
+          {fact.value}
+        </dd>
+      </div>
+    ))}
+  </dl>
+
+  <div class="mt-12 grid gap-4 md:grid-cols-3">
+    {results.items.map((item, index) => (
+      <figure class="flex flex-col gap-4 rounded-2xl bg-powder p-6">
+        <p
+          class:list={[
+            'self-start rounded-lg px-3 py-1 font-display text-sm font-extrabold',
+            ['bg-tangerine', 'bg-mint', 'bg-sun'][index % 3],
+          ]}
+        >
+          {item.result}
+        </p>
+        <blockquote class="flex-1">
+          <p>{item.text}</p>
+        </blockquote>
+        <figcaption class="font-bold">{item.name}</figcaption>
+      </figure>
+    ))}
+  </div>
+</section>

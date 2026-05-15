@@ -1,0 +1,139 @@
+---
+import Clock from '@lucide/astro/icons/clock';
+import MapPin from '@lucide/astro/icons/map-pin';
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Send from '@lucide/astro/icons/send';
+import LeadForm from '@landings/ui/components/LeadForm.astro';
+import MapFacade from '@landings/ui/components/MapFacade.astro';
+import type { Page } from '../lib/content';
+import { telHref } from '../lib/content';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { lead, site } = page;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<section id="lead" class="bg-tangerine text-plum" aria-labelledby="lead-title">
+  <div class="wrap grid gap-12 py-16 md:py-24 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+    <div>
+      <h2 id="lead-title" class="section-title max-w-lg">
+        {lead.title}
+      </h2>
+      <p class="mt-5 max-w-md text-lg">{lead.text}</p>
+      <ul class="mt-8 grid gap-4 font-semibold">
+        <li>
+          <a
+            href={telHref(site.phone)}
+            class="font-display text-2xl font-extrabold tabular-nums hover:underline"
+          >
+            {site.phone}
+          </a>
+        </li>
+        <li class="flex gap-3">
+          <MapPin size={20} class="mt-0.5 flex-none" aria-hidden="true" />
+          {site.address}
+        </li>
+        <li class="flex gap-3">
+          <Clock size={20} class="mt-0.5 flex-none" aria-hidden="true" />
+          {site.hours}
+        </li>
+      </ul>
+      <ul class="mt-8 flex flex-wrap gap-2">
+        {site.messengers.map((messenger) => (
+          <li>
+            <a
+              href={messenger.url}
+              target="_blank"
+              rel="noopener"
+              class="btn btn-plum min-h-11 px-5"
+            >
+              {messenger.kind === 'telegram' ? (
+                <Send size={18} aria-hidden="true" />
+              ) : (
+                <MessageCircle size={18} aria-hidden="true" />
+              )}
+              Написать в {messenger.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="self-start rounded-2xl bg-white p-6 sm:p-8">
+      <LeadForm
+        site="fitness"
+        privacyHref={`${base}/privacy/`}
+        submitLabel="Записаться на пробную"
+        text={{ successText: lead.success }}
+      />
+    </div>
+  </div>
+
+  <MapFacade
+    lat={site.geo.lat}
+    lon={site.geo.lon}
+    label={lead.mapLabel}
+    address={site.address}
+    class="fit-map grid min-h-80 items-end border-t-2 border-plum"
+  >
+    <svg viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid slice" class="size-full">
+      <rect width="1200" height="320" fill="#2b1033" />
+      <g stroke="#4a2453" stroke-width="22" fill="none">
+        <path d="M-20 110 L 1220 70" />
+        <path d="M-20 250 C 400 230, 700 280, 1220 240" />
+        <path d="M300 -20 L 360 340" />
+        <path d="M760 -20 L 700 340" />
+      </g>
+      <path
+        d="M1040 -20 C 980 100, 1110 200, 1050 340"
+        stroke="#3b4bff"
+        stroke-width="46"
+        fill="none"
+        opacity="0.35"
+      />
+      <circle
+        cx="610"
+        cy="92"
+        r="13"
+        fill="var(--color-tangerine)"
+        stroke="#ffe4da"
+        stroke-width="5"
+      />
+    </svg>
+  </MapFacade>
+</section>
+
+<style is:global>
+  .fit-map .map-facade-actions {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding: 1.5rem 1rem;
+  }
+  @media (min-width: 48rem) {
+    .fit-map .map-facade-actions {
+      padding-inline: 2rem;
+    }
+  }
+  .fit-map .map-facade-button {
+    min-height: 3rem;
+    padding: 0.75rem 1.375rem;
+    border-radius: 0.75rem;
+    background: var(--color-tangerine);
+    color: var(--color-plum);
+    font-weight: 700;
+  }
+  .fit-map .map-facade-link {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .fit-map[data-loaded] {
+    display: block;
+    height: 26rem;
+  }
+</style>

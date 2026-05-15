@@ -1,0 +1,29 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+import { getPage } from '../lib/content';
+
+const page = await getPage();
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout
+  title="Страница не найдена | Каденс"
+  description="Такой страницы нет."
+  ogAlt={page.seo.ogAlt}
+  noindex
+>
+  <Header phone={page.site.phone} />
+  <main id="main" class="wrap py-24">
+    <p class="num text-tangerine">404</p>
+    <h1 class="section-title mt-2">Такой страницы нет</h1>
+    <p class="mt-4 max-w-md text-lg text-muted">
+      Возможно, ссылка устарела. Расписание и абонементы на главной.
+    </p>
+    <a href={base} class="btn btn-tangerine mt-8">
+      На главную
+    </a>
+  </main>
+  <Footer legalName={page.site.legalName} />
+</Layout>

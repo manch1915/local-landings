@@ -1,0 +1,194 @@
+---
+import type { Page } from '../lib/content';
+import { spotsLabel, upcoming, type Slot } from '../lib/schedule';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const slots = page.schedule as Slot[];
+const names = Object.fromEntries(page.directions.map((d) => [d.id, d.name]));
+const trainers = Object.fromEntries(page.trainers.map((t) => [t.id, t.name]));
+
+// Build-time fallback: Monday morning. The script swaps in the visitor's real day.
+const initial = upcoming(slots, new Date(2026, 9, 19, 6));
+const config = JSON.stringify({
+  slots,
+  names,
+  trainers,
+  days: page.scheduleText.days,
+  daysShort: page.scheduleText.daysShort,
+  todayLabel: page.hero.todayLabel,
+  nextLabel: page.hero.nextLabel,
+  full: page.scheduleText.full,
+});
+const marquee = page.directions.map((d) => d.short);
+---
+
+<section id="top" class="relative bg-plum text-white" aria-labelledby="hero-title">
+  <div class="wrap grid grid-cols-[minmax(0,1fr)] items-end gap-10 pt-10 pb-14 md:pt-16 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-12 lg:pt-20 lg:pb-20">
+    <div>
+      <h1
+        id="hero-title"
+        class="display text-[clamp(1.75rem,7.9vw,3.75rem)] lg:text-[clamp(3.5rem,5.6vw,5.25rem)]"
+      >
+        {page.hero.title}
+      </h1>
+      <p class="mt-6 max-w-[44ch] text-lg text-powder">{page.hero.lead}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#lead" class="btn btn-tangerine text-lg">
+          {page.hero.cta}
+        </a>
+        <a href="#schedule" class="btn btn-line text-lg text-powder hover:bg-plum-soft">
+          {page.hero.scheduleLink}
+        </a>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-tangerine p-5 text-plum sm:p-6" data-today={config}>
+      <p class="font-display text-lg font-extrabold" data-today-label>
+        {page.hero.nextLabel.replace(
+          '{day}',
+          (page.scheduleText.days[initial.day - 1] ?? '').toLowerCase(),
+        )}
+      </p>
+      <ul class="mt-4 grid gap-2" data-today-list>
+        {initial.slots.map((slot) => (
+          <li>
+            <button type="button" class="today-row" data-slot={JSON.stringify(slot)}>
+              <span class="font-display text-xl font-extrabold tabular-nums sm:text-2xl">
+                {slot.time}
+              </span>
+              <span class="min-w-0 text-left">
+                <span class="block truncate font-bold">{names[slot.direction]}</span>
+                <span class="block truncate text-sm">{trainers[slot.trainer]}</span>
+              </span>
+              <span class="text-sm font-semibold whitespace-nowrap">{spotsLabel(slot.spots)}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div
+    class="marquee overflow-hidden border-y-2 border-plum bg-powder py-3 text-plum"
+    aria-hidden="true"
+  >
+    <div class="marquee-track flex w-max gap-8">
+      {[0, 1, 2, 3].map(() =>
+        marquee.map((word) => (
+          <span class="flex items-center gap-8 font-display text-2xl font-extrabold whitespace-nowrap sm:text-3xl">
+            {word}
+            <svg viewBox="0 0 20 20" class="size-5 text-tangerine">
+              <path
+                d="M10 0l2.6 7.4L20 10l-7.4 2.6L10 20l-2.6-7.4L0 10l7.4-2.6z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+        )),
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+  import { setLeadContext } from '@landings/ui/scripts/lead-context';
+  import { spotsLabel, upcoming, type Slot } from '../lib/schedule';
+
+  interface TodayConfig {
+    slots: Slot[];
+    names: Record<string, string>;
+    trainers: Record<string, string>;
+    days: string[];
+    daysShort: string[];
+    todayLabel: string;
+    nextLabel: string;
+    full: string;
+  }
+
+  const card = document.querySelector<HTMLElement>('[data-today]');
+  if (card) {
+    const config = JSON.parse(card.dataset.today ?? '{}') as TodayConfig;
+    const list = card.querySelector<HTMLElement>('[data-today-list]');
+    const label = card.querySelector<HTMLElement>('[data-today-label]');
+    const result = upcoming(config.slots, new Date());
+
+    if (label) {
+      label.textContent = result.isToday
+        ? config.todayLabel
+        : config.nextLabel.replace('{day}', (config.days[result.day - 1] ?? '').toLowerCase());
+    }
+
+    const rows = list?.querySelectorAll<HTMLButtonElement>('button[data-slot]') ?? [];
+    rows.forEach((row, index) => {
+      const slot = result.slots[index];
+      const item = row.closest('li');
+      if (!slot) {
+        item?.setAttribute('hidden', '');
+        return;
+      }
+      row.dataset.slot = JSON.stringify(slot);
+      const [time, info, spots] = row.children;
+      if (time) time.textContent = slot.time;
+      if (info?.children[0]) info.children[0].textContent = config.names[slot.direction] ?? '';
+      if (info?.children[1]) info.children[1].textContent = config.trainers[slot.trainer] ?? '';
+      if (spots) spots.textContent = spotsLabel(slot.spots);
+    });
+
+    list?.addEventListener('click', (event) => {
+      const row = (event.target as Element).closest<HTMLButtonElement>('button[data-slot]');
+      if (!row) return;
+      const slot = JSON.parse(row.dataset.slot ?? '{}') as Slot;
+      const name = config.names[slot.direction] ?? slot.direction;
+      const when = `${config.daysShort[slot.day - 1] ?? ''} ${slot.time}`;
+      const trainer = config.trainers[slot.trainer] ?? '';
+      setLeadContext({
+        formId: 'main',
+        context: {
+          source: 'Первый экран',
+          class: `${name}, ${when}, ${trainer}${slot.spots === 0 ? ', лист ожидания' : ''}`,
+        },
+        summary: `${name}, ${when}${slot.spots === 0 ? `. ${config.full}` : ''}`,
+        focus: true,
+      });
+    });
+  }
+</script>
+
+<style>
+  .today-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+    min-height: 4rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.875rem;
+    background: rgb(255 255 255 / 0.22);
+    transition: background-color 140ms ease;
+  }
+  .today-row:hover {
+    background: rgb(255 255 255 / 0.4);
+  }
+  .today-row:focus-visible {
+    outline-color: var(--color-plum);
+  }
+
+  .marquee-track {
+    animation: marquee 32s linear infinite;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+</style>

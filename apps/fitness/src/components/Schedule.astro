@@ -1,0 +1,181 @@
+---
+import type { Page } from '../lib/content';
+import { byDay, spotsLabel, type Slot } from '../lib/schedule';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const text = page.scheduleText;
+const days = byDay(page.schedule as Slot[]);
+const names = Object.fromEntries(page.directions.map((d) => [d.id, d.name]));
+const trainers = Object.fromEntries(page.trainers.map((t) => [t.id, t.name]));
+---
+
+<section id="schedule" class="bg-powder" aria-labelledby="schedule-title">
+  <div class="wrap py-16 md:py-24">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2 id="schedule-title" class="section-title">
+        {text.title}
+      </h2>
+      <p class="max-w-sm text-muted">{text.lead}</p>
+    </div>
+
+    <div
+      class="mt-8 flex flex-wrap gap-2"
+      role="group"
+      aria-label="Фильтр по направлениям"
+      data-filters
+    >
+      <button type="button" class="filter" aria-pressed="true" data-filter="">
+        {text.all}
+      </button>
+      {page.directions.map((direction) => (
+        <button
+          type="button"
+          class:list={['filter', `dir-${direction.id}`]}
+          aria-pressed="false"
+          data-filter={direction.id}
+        >
+          <span class="size-3 rounded-full bg-(--dir)" aria-hidden="true" />
+          {direction.short}
+        </button>
+      ))}
+    </div>
+
+    <div class="mt-8 grid gap-6 md:grid-cols-4 xl:grid-cols-7 xl:gap-3" data-week>
+      {[...days.entries()].map(([day, slots]) => (
+        <div class="day" data-day>
+          <h3 class="border-b-2 border-plum pb-2 font-display font-extrabold">
+            <span class="xl:hidden">{text.days[day - 1]}</span>
+            <span class="hidden xl:inline">{text.daysShort[day - 1]}</span>
+          </h3>
+          <ul class="mt-3 grid gap-2">
+            {slots.map((slot) => {
+              const name = names[slot.direction] ?? slot.direction;
+              const trainer = trainers[slot.trainer] ?? '';
+              return (
+                <li data-direction={slot.direction}>
+                  <button
+                    type="button"
+                    class:list={['slot', `dir-${slot.direction}`, slot.spots === 0 && 'slot-full']}
+                    data-class={`${name}, ${text.daysShort[day - 1]} ${slot.time}, ${trainer}`}
+                    data-summary={`${name}, ${text.days[day - 1]?.toLowerCase()} ${slot.time}`}
+                    data-full={slot.spots === 0 ? 'true' : undefined}
+                  >
+                    <span class="font-display text-lg font-extrabold tabular-nums">
+                      {slot.time}
+                    </span>
+                    <span class="block font-semibold leading-snug">{name}</span>
+                    <span class="block text-sm text-muted">{trainer}</span>
+                    <span class="mt-1 block text-sm font-semibold">{spotsLabel(slot.spots)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  import { setLeadContext } from '@landings/ui/scripts/lead-context';
+
+  const section = document.querySelector<HTMLElement>('#schedule');
+  if (section) {
+    const filters = section.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    for (const button of filters) {
+      button.addEventListener('click', () => {
+        const value = button.dataset.filter ?? '';
+        for (const other of filters) other.setAttribute('aria-pressed', String(other === button));
+        for (const item of section.querySelectorAll<HTMLElement>('li[data-direction]')) {
+          item.hidden = value !== '' && item.dataset.direction !== value;
+        }
+        for (const day of section.querySelectorAll<HTMLElement>('[data-day]')) {
+          day.classList.toggle('day-empty', !day.querySelector('li[data-direction]:not([hidden])'));
+        }
+      });
+    }
+
+    section.querySelector('[data-week]')?.addEventListener('click', (event) => {
+      const slot = (event.target as Element).closest<HTMLButtonElement>('button[data-class]');
+      if (!slot) return;
+      const full = slot.dataset.full === 'true';
+      setLeadContext({
+        formId: 'main',
+        context: {
+          source: 'Расписание',
+          class: `${slot.dataset.class ?? ''}${full ? ', лист ожидания' : ''}`,
+        },
+        summary: `${slot.dataset.summary ?? ''}${full ? ', лист ожидания' : ''}`,
+        focus: true,
+      });
+    });
+  }
+</script>
+
+<style>
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--color-plum);
+    border-radius: 999px;
+    font-weight: 600;
+    transition:
+      background-color 140ms ease,
+      color 140ms ease;
+  }
+  .filter:hover {
+    background: rgb(43 16 51 / 0.08);
+  }
+  .filter[aria-pressed='true'] {
+    background: var(--color-plum);
+    color: #fff;
+  }
+  .slot {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 0.875rem 0.875rem;
+    border-left: 6px solid var(--dir);
+    border-radius: 0.75rem;
+    background: #fff;
+    text-align: left;
+    transition:
+      transform 140ms ease,
+      box-shadow 140ms ease;
+  }
+  .slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -14px rgb(43 16 51 / 0.6);
+  }
+  @media (max-width: 47.99rem) {
+    .slot {
+      display: grid;
+      grid-template-columns: 4.25rem minmax(0, 1fr);
+      column-gap: 0.75rem;
+    }
+    .slot > :first-child {
+      grid-row: span 3;
+    }
+    .slot > :not(:first-child) {
+      grid-column: 2;
+    }
+  }
+  .slot-full {
+    background: rgb(255 255 255 / 0.55);
+  }
+  .day-empty {
+    opacity: 0.45;
+  }
+  @media (max-width: 47.99rem) {
+    .day-empty {
+      display: none;
+    }
+  }
+</style>
