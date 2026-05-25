@@ -21,7 +21,8 @@ const {
   locale = 'ru',
   formId = 'main',
   source,
-  endpoint = '/api/leads',
+  // Follows BASE_PATH, so a site served under /demo/x/ posts to /demo/x/api/leads.
+  endpoint = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/leads`,
   withMessage = false,
   privacyHref,
   submitLabel,
