@@ -13,7 +13,8 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: 'Unbounded',
       cssVariable: '--font-unbounded',
-      weights: ['500 900'],
+      // Headings only use 800; a static file is a third of the variable one.
+      weights: [800],
       styles: ['normal'],
       subsets: ['cyrillic', 'latin'],
       fallbacks: ['sans-serif'],

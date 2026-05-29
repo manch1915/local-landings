@@ -18,7 +18,7 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: 'Nunito',
       cssVariable: '--font-nunito',
-      weights: ['600 900'],
+      weights: [800],
       styles: ['normal'],
       subsets: ['cyrillic', 'latin'],
       fallbacks: ['sans-serif'],

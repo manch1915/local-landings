@@ -226,7 +226,7 @@
     background: var(--color-tangerine);
     color: var(--color-plum);
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 800;
     transition: background-color 140ms ease;
   }
   .lf-submit:hover {
@@ -280,7 +280,7 @@
   .faq-question {
     padding-block: 1.25rem;
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 800;
     font-size: 1.0625rem;
     line-height: 1.3;
   }
