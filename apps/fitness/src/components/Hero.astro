@@ -9,6 +9,8 @@ interface Props {
 const { page } = Astro.props;
 const slots = page.schedule as Slot[];
 const names = Object.fromEntries(page.directions.map((d) => [d.id, d.name]));
+// The card is narrow on phones, so it uses the short names.
+const shortNames = Object.fromEntries(page.directions.map((d) => [d.id, d.short]));
 const trainers = Object.fromEntries(page.trainers.map((t) => [t.id, t.name]));
 
 // Build-time fallback: Monday morning. The script swaps in the visitor's real day.
@@ -16,6 +18,7 @@ const initial = upcoming(slots, new Date(2026, 9, 19, 6));
 const config = JSON.stringify({
   slots,
   names,
+  shortNames,
   trainers,
   days: page.scheduleText.days,
   daysShort: page.scheduleText.daysShort,
@@ -61,7 +64,7 @@ const marquee = page.directions.map((d) => d.short);
                 {slot.time}
               </span>
               <span class="min-w-0 text-left">
-                <span class="block truncate font-bold">{names[slot.direction]}</span>
+                <span class="block truncate font-bold">{shortNames[slot.direction]}</span>
                 <span class="block truncate text-sm">{trainers[slot.trainer]}</span>
               </span>
               <span class="text-sm font-semibold whitespace-nowrap">{spotsLabel(slot.spots)}</span>
@@ -101,6 +104,7 @@ const marquee = page.directions.map((d) => d.short);
   interface TodayConfig {
     slots: Slot[];
     names: Record<string, string>;
+    shortNames: Record<string, string>;
     trainers: Record<string, string>;
     days: string[];
     daysShort: string[];
@@ -133,7 +137,7 @@ const marquee = page.directions.map((d) => d.short);
       row.dataset.slot = JSON.stringify(slot);
       const [time, info, spots] = row.children;
       if (time) time.textContent = slot.time;
-      if (info?.children[0]) info.children[0].textContent = config.names[slot.direction] ?? '';
+      if (info?.children[0]) info.children[0].textContent = config.shortNames[slot.direction] ?? '';
       if (info?.children[1]) info.children[1].textContent = config.trainers[slot.trainer] ?? '';
       if (spots) spots.textContent = spotsLabel(slot.spots);
     });
