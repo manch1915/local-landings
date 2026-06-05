@@ -1,0 +1,15 @@
+# Override for a server where a reverse proxy (Caddy, Traefik) already runs
+# in its own Docker network. The sites are not published on host ports;
+# the proxy reaches them by container name.
+#
+#   PROXY_NETWORK=infra_default docker compose -f docker-compose.yml -f deploy/docker-compose.proxy.yml up -d --build
+
+services:
+  web:
+    ports: !reset []
+    networks: [default, proxy]
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:?set PROXY_NETWORK to the proxy's Docker network}
+    external: true

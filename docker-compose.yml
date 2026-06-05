@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: services/leads-api/Dockerfile
+    env_file:
+      - path: services/leads-api/.env
+        required: false
+    environment:
+      TRUST_PROXY: 'true'
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/web.Dockerfile
+      args:
+        REPAIR_URL: ${REPAIR_URL:-http://localhost:8081}
+        TUTOR_URL: ${TUTOR_URL:-http://localhost:8082}
+        FITNESS_URL: ${FITNESS_URL:-http://localhost:8083}
+        PUBLIC_UMAMI_SRC: ${PUBLIC_UMAMI_SRC:-}
+        PUBLIC_UMAMI_ID_REPAIR: ${PUBLIC_UMAMI_ID_REPAIR:-}
+        PUBLIC_UMAMI_ID_TUTOR: ${PUBLIC_UMAMI_ID_TUTOR:-}
+        PUBLIC_UMAMI_ID_FITNESS: ${PUBLIC_UMAMI_ID_FITNESS:-}
+        PUBLIC_YM_ID: ${PUBLIC_YM_ID:-}
+    depends_on:
+      - api
+    ports:
+      - '${BIND_ADDR:-127.0.0.1}:${REPAIR_PORT:-8081}:8081'
+      - '${BIND_ADDR:-127.0.0.1}:${TUTOR_PORT:-8082}:8082'
+      - '${BIND_ADDR:-127.0.0.1}:${FITNESS_PORT:-8083}:8083'
+    restart: unless-stopped
