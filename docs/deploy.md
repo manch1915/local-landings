@@ -55,7 +55,7 @@ fitness.example.com {
 
 Use `127.0.0.1:808x` instead of the container name when Caddy runs on the host. Before reloading: back up the Caddyfile, run `caddy validate`, then `caddy reload`. Add the blocks only after the DNS records exist, otherwise Caddy keeps retrying certificates.
 
-nginx already sets `X-Forwarded-For` for the API, and `TRUST_PROXY=true` in Compose makes the rate limiter use the visitor's address.
+nginx trusts `X-Forwarded-For` only from private networks (the proxy), resolves the visitor's address and passes it to the API, so rate limits apply per visitor. Keep the published ports bound to 127.0.0.1 so nobody can reach nginx around the proxy and forge that header.
 
 ## 4. Check
 
