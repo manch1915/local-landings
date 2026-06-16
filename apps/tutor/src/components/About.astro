@@ -1,4 +1,6 @@
 ---
+import { Picture } from 'astro:assets';
+import anna from '../assets/anna.jpg';
 import type { Page } from '../lib/content';
 
 interface Props {
@@ -10,7 +12,19 @@ const { about, reviews } = page;
 ---
 
 <section class="bg-mint/45" aria-labelledby="about-title">
-  <div class="wrap grid gap-12 py-16 md:py-24 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+  <div class="wrap grid gap-10 py-16 md:py-24 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+    <Picture
+      src={anna}
+      formats={['avif', 'webp']}
+      widths={[360, 560, 800]}
+      sizes="(min-width: 1024px) 400px, (min-width: 640px) 60vw, 100vw"
+      alt={
+        page.locale === 'ru'
+          ? 'Анна Миронова готовится к уроку'
+          : 'Anna Mironova preparing for a lesson'
+      }
+      class="aspect-[4/5] w-full max-w-md rounded-[var(--radius-card)] object-cover object-top"
+    />
     <div>
       <h2 id="about-title" class="section-title">
         {about.title}
@@ -18,15 +32,15 @@ const { about, reviews } = page;
       {about.text.map((paragraph) => (
         <p class="mt-5 max-w-prose text-lg">{paragraph}</p>
       ))}
+      <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+        {about.facts.map((fact) => (
+          <div class="flex flex-col rounded-[var(--radius-card)] bg-white px-6 py-5">
+            <dt class="order-2 text-muted">{fact.label}</dt>
+            <dd class="order-1 font-display text-4xl font-extrabold tabular-nums">{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
-    <dl class="grid content-center gap-4 sm:grid-cols-3 lg:grid-cols-1">
-      {about.facts.map((fact) => (
-        <div class="flex flex-col rounded-[var(--radius-card)] bg-white px-6 py-5">
-          <dt class="order-2 text-muted">{fact.label}</dt>
-          <dd class="order-1 font-display text-4xl font-extrabold tabular-nums">{fact.value}</dd>
-        </div>
-      ))}
-    </dl>
   </div>
 </section>
 

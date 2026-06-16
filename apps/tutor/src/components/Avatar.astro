@@ -1,17 +1,26 @@
 ---
+import { Image } from 'astro:assets';
+import anna from '../assets/anna.jpg';
+
 interface Props {
-  initials: string;
   size?: 'sm' | 'md';
 }
-const { initials, size = 'md' } = Astro.props;
+
+const { size = 'md' } = Astro.props;
+const px = size === 'sm' ? 36 : 44;
 ---
 
-<span
+<Image
+  src={anna}
+  alt=""
+  width={px}
+  height={px}
+  densities={[1, 2]}
+  fit="cover"
+  position="top"
+  loading="eager"
   class:list={[
-    'grid flex-none place-items-center rounded-full bg-sticky font-display font-extrabold text-ink',
-    size === 'sm' ? 'size-9 text-sm' : 'size-11 text-base',
+    'flex-none rounded-full bg-sticky object-cover',
+    size === 'sm' ? 'size-9' : 'size-11',
   ]}
-  aria-hidden="true"
->
-  {initials}
-</span>
+/>
