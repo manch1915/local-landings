@@ -1,4 +1,6 @@
 ---
+import { Picture } from 'astro:assets';
+import group from '../assets/group.jpg';
 import type { Page } from '../lib/content';
 
 interface Props {
@@ -14,16 +16,26 @@ const { results } = page;
     {results.title}
   </h2>
 
-  <dl class="mt-10 grid gap-4 sm:grid-cols-3">
-    {results.facts.map((fact) => (
-      <div class="flex flex-col border-t-2 border-plum pt-4">
-        <dt class="order-2 text-muted">{fact.label}</dt>
-        <dd class="order-1 font-display text-5xl font-extrabold tracking-tight tabular-nums">
-          {fact.value}
-        </dd>
-      </div>
-    ))}
-  </dl>
+  <div class="mt-10 grid items-center gap-8 lg:grid-cols-[1.3fr_1fr]">
+    <Picture
+      src={group}
+      formats={['avif', 'webp']}
+      widths={[480, 800, 1200]}
+      sizes="(min-width: 1024px) 680px, 100vw"
+      alt="Группа после тренировки по функционалке"
+      class="aspect-[16/10] w-full rounded-2xl object-cover"
+    />
+    <dl class="grid gap-6">
+      {results.facts.map((fact) => (
+        <div class="flex flex-col border-t-2 border-plum pt-4">
+          <dt class="order-2 text-muted">{fact.label}</dt>
+          <dd class="order-1 font-display text-5xl font-extrabold tracking-tight tabular-nums">
+            {fact.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </div>
 
   <div class="mt-12 grid gap-4 md:grid-cols-3">
     {results.items.map((item, index) => (
