@@ -1,4 +1,6 @@
 ---
+import { Picture } from 'astro:assets';
+import team from '../assets/team.jpg';
 import type { Page } from '../lib/content';
 
 interface Props {
@@ -30,21 +32,29 @@ const { reviews, about } = Astro.props;
       ))}
     </div>
 
-    <div class="mt-16 grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+    <div class="mt-16 grid items-center gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
       <div>
         <h2 class="section-title">{about.title}</h2>
         {about.text.map((paragraph) => (
           <p class="mt-4 max-w-prose text-lg leading-relaxed text-muted">{paragraph}</p>
         ))}
+        <dl class="mt-8 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-3">
+          {about.facts.map((fact) => (
+            <div class="flex flex-col bg-paper p-5">
+              <dt class="order-2 mt-1 text-sm text-muted">{fact.label}</dt>
+              <dd class="num order-1 text-4xl font-semibold tracking-tight">{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
-      <dl class="grid content-start gap-px self-center overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-3">
-        {about.facts.map((fact) => (
-          <div class="flex flex-col bg-paper p-6">
-            <dt class="order-2 mt-1 text-muted">{fact.label}</dt>
-            <dd class="num order-1 text-4xl font-semibold tracking-tight">{fact.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <Picture
+        src={team}
+        formats={['avif', 'webp']}
+        widths={[480, 720, 1000]}
+        sizes="(min-width: 1024px) 520px, 100vw"
+        alt="Мастер «Отвеса» режет плитку по уровню"
+        class="aspect-[4/5] w-full rounded-sm object-cover lg:aspect-[4/5]"
+      />
     </div>
   </div>
 </section>
