@@ -7,7 +7,7 @@ Three landing pages for local businesses that turn visitors into leads. One Astr
 | ![Renovation landing](docs/screenshots/repair-desktop.png) | ![Tutor landing](docs/screenshots/tutor-desktop.png) | ![Fitness landing](docs/screenshots/fitness-desktop.png) |
 | ![Renovation on a phone](docs/screenshots/repair-mobile.png) | ![Tutor on a phone](docs/screenshots/tutor-mobile.png) | ![Fitness on a phone](docs/screenshots/fitness-mobile.png) |
 
-The businesses, people, prices and contacts are made up for the demo.
+The businesses, people, prices and contacts are made up for the demo. Photos are from [Unsplash](https://unsplash.com) under the Unsplash License.
 
 ## What's inside
 
@@ -41,7 +41,8 @@ Every site has the blocks clients ask for in this niche: offer, services and pri
 
 ### Speed and SEO
 
-- Lighthouse on a throttled mobile profile: Performance 98 to 100, Accessibility, Best Practices and SEO 100 on all four pages; LCP 1.5 to 1.9 s.
+- Lighthouse on a throttled mobile profile: Performance 96 to 100, Accessibility, Best Practices and SEO 100 on all four pages; LCP 1.5 to 1.9 s.
+- Photos go through `astro:assets`: AVIF and WebP in several widths, lazy below the fold.
 - Static HTML, about 8 KB of JavaScript per page (3 KB gzipped), CSS inlined.
 - Self-hosted fonts through the Astro Fonts API with metric-matched fallbacks, so text does not jump when fonts load.
 - The Yandex map (about 1 MB) loads only after a click.
