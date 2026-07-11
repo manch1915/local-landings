@@ -19,7 +19,6 @@ const config = JSON.stringify({
   courseNames: Object.fromEntries(page.courses.map((course) => [course.id, course.name])),
 });
 const first = quiz.questions.goal;
-const initials = page.locale === 'ru' ? 'АМ' : 'AM';
 ---
 
 <div class="quiz rounded-[var(--radius-card)] bg-white shadow-card" data-quiz={config}>
