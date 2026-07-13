@@ -78,7 +78,7 @@ npm run dev:fitness   # http://localhost:4323
 
 The dev servers proxy `/api` to the leads API, so forms work end to end. Leads show up in the API log as mock CRM deals.
 
-To send real notifications, copy `services/leads-api/.env.example` to `.env` and fill in the bot token and chat id.
+To send real notifications, copy `services/leads-api/.env.example` to `.env` and fill in the bot token. Send /start to the bot, then `TELEGRAM_BOT_TOKEN=... node scripts/telegram-chat-id.mjs` prints the chat id to put next to it.
 
 ### Docker
 
