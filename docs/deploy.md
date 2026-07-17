@@ -26,7 +26,13 @@ PUBLIC_UMAMI_ID_FITNESS=...
 
 On a clean server with nothing else on ports 80/443, run `docker compose up -d --build` and point any reverse proxy at `127.0.0.1:8081`, `:8082` and `:8083`.
 
-If Caddy or Traefik already runs in Docker, join its network instead of publishing ports:
+If Caddy or Traefik already runs in Docker, join its network instead of publishing ports. `deploy/deploy.sh` does this from a workstation in one SSH connection: it uploads the committed tree plus `services/leads-api/.env` and `deploy/.env.server` (copied to `.env` on the server), then rebuilds.
+
+```bash
+bash deploy/deploy.sh my-server /opt/local-landings
+```
+
+Or by hand on the server:
 
 ```bash
 PROXY_NETWORK=infra_default docker compose -f docker-compose.yml -f deploy/docker-compose.proxy.yml up -d --build

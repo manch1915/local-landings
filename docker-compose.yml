@@ -8,6 +8,10 @@ services:
         required: false
     environment:
       TRUST_PROXY: 'true'
+    networks:
+      default:
+        # Unique name: on a shared proxy network a plain "api" could point elsewhere.
+        aliases: [landings-leads-api]
     restart: unless-stopped
 
   web:
