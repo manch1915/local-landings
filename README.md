@@ -7,6 +7,8 @@ Three landing pages for local businesses that turn visitors into leads. One Astr
 | ![Renovation landing](docs/screenshots/repair-desktop.png) | ![Tutor landing](docs/screenshots/tutor-desktop.png) | ![Fitness landing](docs/screenshots/fitness-desktop.png) |
 | ![Renovation on a phone](docs/screenshots/repair-mobile.png) | ![Tutor on a phone](docs/screenshots/tutor-mobile.png) | ![Fitness on a phone](docs/screenshots/fitness-mobile.png) |
 
+**Live demo:** [remont.narcisbin.com](https://remont.narcisbin.com) · [tutor.narcisbin.com](https://tutor.narcisbin.com) ([English](https://tutor.narcisbin.com/en/)) · [fitness.narcisbin.com](https://fitness.narcisbin.com). Forms work: requests reach a demo Telegram bot and a mock CRM.
+
 The businesses, people, prices and contacts are made up for the demo. Photos are from [Unsplash](https://unsplash.com) under the Unsplash License.
 
 ## What's inside
