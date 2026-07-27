@@ -56,7 +56,12 @@ const write = page.locale === 'ru' ? 'Написать в' : 'Message on';
         lon={site.geo.lon}
         label={lead.mapLabel}
         address={site.address}
-        externalLabel={page.locale === 'ru' ? 'Яндекс Карты' : 'Yandex Maps'}
+        externalLabel={page.locale === 'ru' ? 'Открыть в Яндекс Картах' : 'Open in Yandex Maps'}
+        failedText={
+          page.locale === 'ru'
+            ? 'Карта не загрузилась. Возможно, её блокирует браузер.'
+            : 'The map did not load. Your browser may be blocking it.'
+        }
         class="tutor-map mt-6 grid min-h-48 items-end overflow-hidden rounded-[var(--radius-card)]"
       >
         <svg viewBox="0 0 480 200" preserveAspectRatio="xMidYMid slice" class="size-full">
