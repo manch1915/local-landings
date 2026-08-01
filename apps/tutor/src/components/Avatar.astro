@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import anna from '../assets/anna.jpg';
+import anna from '../assets/anna-face.jpg';
 
 interface Props {
   size?: 'sm' | 'md';
@@ -16,8 +16,6 @@ const px = size === 'sm' ? 36 : 44;
   width={px}
   height={px}
   densities={[1, 2]}
-  fit="cover"
-  position="top"
   loading="eager"
   class:list={[
     'flex-none rounded-full bg-sticky object-cover',

@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import anna from '../assets/anna.jpg';
+import anna from '../assets/anna-portrait.jpg';
 import type { Page } from '../lib/content';
 
 interface Props {
@@ -16,8 +16,8 @@ const { about, reviews } = page;
     <Picture
       src={anna}
       formats={['avif', 'webp']}
-      widths={[360, 560, 800]}
-      sizes="(min-width: 1024px) 400px, (min-width: 640px) 60vw, 100vw"
+      widths={[360, 540, 720]}
+      sizes="(min-width: 1024px) 420px, (min-width: 640px) 60vw, 100vw"
       alt={
         page.locale === 'ru'
           ? 'Анна Миронова готовится к уроку'
