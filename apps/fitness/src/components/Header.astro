@@ -8,18 +8,20 @@ interface Props {
 }
 
 const { phone } = Astro.props;
+// Anchors point at the home page, so the header also works on /privacy/ and 404.
+const home = import.meta.env.BASE_URL;
 const links = [
-  { href: '#directions', label: 'Направления' },
-  { href: '#schedule', label: 'Расписание' },
-  { href: '#plans', label: 'Абонементы' },
-  { href: '#trainers', label: 'Тренеры' },
-  { href: '#faq', label: 'Вопросы' },
+  { href: `${home}#directions`, label: 'Направления' },
+  { href: `${home}#schedule`, label: 'Расписание' },
+  { href: `${home}#plans`, label: 'Абонементы' },
+  { href: `${home}#trainers`, label: 'Тренеры' },
+  { href: `${home}#faq`, label: 'Вопросы' },
 ];
 ---
 
 <header class="sticky top-0 z-40 bg-plum text-white">
   <div class="wrap flex h-16 items-center justify-between gap-4">
-    <a href="#top" aria-label="Каденс, на главную" class="rounded-lg">
+    <a href={`${home}#top`} aria-label="Каденс, на главную" class="rounded-lg">
       <Logo />
     </a>
     <nav aria-label="Разделы" class="hidden lg:block">
@@ -47,7 +49,10 @@ const links = [
       >
         <Phone size={20} aria-hidden="true" />
       </a>
-      <a href="#lead" class="btn btn-tangerine min-h-11 px-4 text-[0.9375rem] whitespace-nowrap">
+      <a
+        href={`${home}#lead`}
+        class="btn btn-tangerine min-h-11 px-4 text-[0.9375rem] whitespace-nowrap"
+      >
         <span class="sm:hidden">Пробная</span>
         <span class="hidden sm:inline">Пробная бесплатно</span>
       </a>
