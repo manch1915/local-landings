@@ -118,7 +118,7 @@ const page = defineCollection({
       online: z.string(),
       mapLabel: z.string(),
     }),
-    footer: z.object({ privacy: z.string(), demo: z.string(), author: z.string() }),
+    footer: z.object({ privacy: z.string(), credit: z.string(), author: z.string() }),
     privacy: z.object({ title: z.string(), body: z.array(z.string()) }),
   }),
 });
