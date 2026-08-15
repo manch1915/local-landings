@@ -33,6 +33,11 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Short pages (privacy, 404) keep the footer at the bottom of the screen. */
+  main {
+    flex: 1 0 auto;
+  }
+
   :focus-visible {
     outline: 3px solid var(--color-electric);
     outline-offset: 3px;
@@ -85,6 +90,8 @@
     line-height: 1;
     letter-spacing: -0.03em;
     text-wrap: balance;
+    /* Unbounded is wide: long words like «конфиденциальности» need hyphens on phones. */
+    hyphens: auto;
   }
 
   .btn {

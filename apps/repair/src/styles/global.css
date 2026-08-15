@@ -38,6 +38,11 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Short pages (privacy, 404) keep the footer at the bottom of the screen. */
+  main {
+    flex: 1 0 auto;
+  }
+
   :focus-visible {
     outline: 3px solid var(--color-pencil);
     outline-offset: 2px;
